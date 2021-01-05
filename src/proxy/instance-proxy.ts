@@ -1,11 +1,20 @@
 import { isSymbol } from "lodash";
-import type { ModuleDefinition, ProxyAccess, ProxyContext, ProxyKind } from "../details";
+import type {
+    LocalAccessor,
+    LocalFunction,
+    LocalGetter, LocalMutation,
+    LocalSetter,
+    ModuleDefinition,
+    ProxyAccess,
+    ProxyContext,
+    ProxyKind,
+} from "../details";
 import type { RegisterOptions } from "../options";
 import type { StoreModule } from "../store-modules";
 import { msg } from "../utils";
 
-type MemberProxy<M extends StoreModule> = (target: M) => unknown;
-type ProxySetter = (key: string, value: unknown) => void;
+type MemberProxy<M extends StoreModule> = (receiver: M) => unknown;
+type ProxySetter<M extends StoreModule> = (key: string|keyof M, value: M[keyof M], receiver: M, handler: LocalSetter<M>) => void;
 type ProxyRestate<M extends StoreModule> = (key: keyof M, value: M[typeof key]) => void;
 
 class BaseHandler<M extends StoreModule> implements ProxyHandler<M> {
@@ -41,14 +50,12 @@ class StoreModuleHandler<M extends StoreModule> extends BaseHandler<M> implement
     private readonly options: RegisterOptions;
     private readonly context: ProxyContext<M>;
     private readonly namespace: string;
-    private readonly setter: ProxySetter;
+    private readonly setter: ProxySetter<M>;
     private readonly restate: null|ProxyRestate<M>;
     private readonly proxies = new Map<string|keyof M, MemberProxy<M>>();
 
     constructor(kind: ProxyKind, context: ProxyContext<M>, options: RegisterOptions, definition: ModuleDefinition<M>) {
         super();
-
-        const isPublicProxy = kind === "public";
 
         this.definition = definition;
         this.options = options;
@@ -59,39 +66,26 @@ class StoreModuleHandler<M extends StoreModule> extends BaseHandler<M> implement
         this.restate = this.definition.options.openState || kind === "mutation" ? this.getStateSetter(kind) : null;
 
         // Getters
-        for (const key of this.definition.getters.keys()) {
-            this.proxies.set(key, context.getters ?
-                () => context.getters?.[`${this.namespace}get__${key as string}`] :
-                () => { throw new Error(msg(`Calling getter for "${key as string}" at inappropriate time.`)) });
+        for (const [ key, handler ] of this.definition.getters.entries()) {
+            this.proxies.set(key, this.getGetter(kind, key, context, handler));
         }
 
         // Setters
-        this.setter = context.commit ?
-            (key: string, payload?: unknown) => { context.commit?.(`${this.namespace}set__${key}`, payload) } :
-            (key: string) => { throw new Error(msg(`Calling setter for "${key}" at inappropriate time.`)) };
+        this.setter = this.getSetter(kind, context);
 
         // Accessors
-        for (const key of this.definition.accessors.keys()) {
-            this.proxies.set(key, context.getters ?
-                () => (...payload: unknown[]) => (context.getters?.[`${this.namespace}${key as string}`] as ProxyAccess)(payload) :
-                () => () => { throw new Error(msg(`Calling getter "${key as string}" at inappropriate time.`)) },
-            );
+        for (const [ key, member ] of this.definition.accessors.entries()) {
+            this.proxies.set(key, this.getAccessor(kind, key, context, member));
         }
 
         // Mutations
-        for (const key of this.definition.mutations.keys()) {
-            this.proxies.set(key, context.commit ?
-                () => (...payload: unknown[]) => { context.commit?.(`${this.namespace}${key as string}`, payload) } :
-                () => () => { throw new Error(msg(`Calling mutation "${key as string}" at inappropriate time.`)) },
-            );
+        for (const [ key, member ] of this.definition.mutations.entries()) {
+            this.proxies.set(key, this.getMutation(kind, key, context, member));
         }
 
         // Actions
         for (const key of this.definition.actions.keys()) {
-            this.proxies.set(key, context.dispatch ?
-                () => (...payload: unknown[]) => context.dispatch?.(`${this.namespace}${key as string}`, payload) :
-                () => () => { throw new Error(msg(`Calling action "${key as string}" at inappropriate time.`)) },
-            );
+            this.proxies.set(key, this.getAction(kind, key, context));
         }
 
         // Watchers
@@ -102,56 +96,52 @@ class StoreModuleHandler<M extends StoreModule> extends BaseHandler<M> implement
 
         // Local functions
         for (const [ key, member ] of this.definition.locals.entries()) {
-            this.proxies.set(key, !isPublicProxy ?
-                (target: M) => (...args: unknown[]) => member.call(target, ...args) :
-                () => () => { throw new Error(msg(`Calling local function "${key as string}" at inappropriate time.`)) },
-            );
+            this.proxies.set(key, this.getLocalFunction(kind, key, context, member));
         }
     }
 
-    get(target: M, p: keyof M): unknown {
+    get(target: M, key: keyof M, receiver: M): unknown {
         // Short-circuit; state, or local and prototype inherited symbol accessed fields.
-        if (isSymbol(p) || Object.prototype.hasOwnProperty.call(target, p)) {
-            return target[p];
+        if (isSymbol(key) || Object.prototype.hasOwnProperty.call(target, key)) {
+            return target[key];
         }
 
         // Callables
-        const proxy = this.proxies.get(p);
+        const proxy = this.proxies.get(key);
         if (proxy) {
-            return proxy.call(this, target);
+            return proxy.call(this, receiver);
         }
 
         // Any other prototype inherited field.
-        return target[p];
+        return target[key];
     }
 
-    set(target: M, p: keyof M, value: unknown): boolean {
+    set(target: M, key: keyof M, value: M[typeof key], receiver: M): boolean {
         // Short-circuit; state, or local and prototype inherited symbol accessed fields.
-        if (Object.prototype.hasOwnProperty.call(target, p)) {
-            if (isSymbol(p)) {
-                target[p] = value as M[typeof p];
+        if (Object.prototype.hasOwnProperty.call(target, key)) {
+            if (isSymbol(key)) {
+                target[key] = value as M[typeof key];
 
                 return true;
             }
 
             if (this.restate) {
-                this.restate(p, value as M[typeof p]);
+                this.restate(key, value);
 
                 return true;
             }
 
-            console.warn(msg("Cannot modify the state outside mutations."));
-
-            return false;
+            throw new Error(msg("Cannot modify the state outside mutations."));
         }
 
-        if (this.definition.setters.has(p)) {
-            this.setter(p as string, value);
+        const handler = this.definition.setters.get(key);
+        if (handler) {
+            this.setter(key, value, receiver, handler);
 
             return true;
         }
 
-        console.warn(msg(`Cannot modify property ${p as string} of store.`));
+        console.warn(msg(`Cannot modify property ${key as string} of store.`));
 
         return false;
     }
@@ -169,6 +159,62 @@ class StoreModuleHandler<M extends StoreModule> extends BaseHandler<M> implement
         default:
             return null;
         }
+    }
+
+    private getGetter(_kind: ProxyKind, key: string|keyof M, context: ProxyContext<M>, handler: LocalGetter<M>): MemberProxy<M> {
+        if (context.getters) {
+            return () => context.getters?.[`${this.namespace}get__${key as string}`];
+        }
+
+        return receiver => handler.call(receiver);
+    }
+
+    private getSetter(kind: ProxyKind, context: ProxyContext<M>): ProxySetter<M> {
+        if (context.commit) {
+            return (key, value) => {
+                context.commit?.(`${this.namespace}set__${key as string}`, value);
+            };
+        }
+
+        if (kind === "mutation") {
+            return (_key, value, receiver, handler) => handler.call(receiver, value);
+        }
+
+        return key => { throw new Error(msg(`Calling setter for "${key as string}" at inappropriate time.`)) };
+    }
+
+    private getAccessor(_kind: ProxyKind, key: string|keyof M, context: ProxyContext<M>, member: LocalAccessor<M>): MemberProxy<M> {
+        if (context.getters) {
+            return () => (...payload: unknown[]) =>
+                (context.getters?.[`${this.namespace}${key as string}`] as ProxyAccess)(payload);
+        }
+
+        return receiver => (...payload: unknown[]) => member.call(receiver, ...payload) as unknown;
+    }
+
+    private getMutation(kind: ProxyKind, key: string|keyof M, context: ProxyContext<M>, member: LocalMutation<M>): MemberProxy<M> {
+        if (context.commit) {
+            return () => (...payload: unknown[]) => { context.commit?.(`${this.namespace}${key as string}`, payload) };
+        }
+
+        if (kind === "mutation") {
+            return receiver => (...payload: unknown[]) => member.call(receiver, ...payload);
+        }
+
+        return () => () => { throw new Error(msg(`Calling mutation "${key as string}" at inappropriate time.`)) };
+    }
+
+    private getAction(_kind: ProxyKind, key: string|keyof M, context: ProxyContext<M>): MemberProxy<M> {
+        return context.dispatch ?
+            () => (...payload: unknown[]) => context.dispatch?.(`${this.namespace}${key as string}`, payload) :
+            () => () => { throw new Error(msg(`Calling action "${key as string}" at inappropriate time.`)) };
+    }
+
+    // eslint-disable-next-line class-methods-use-this
+    private getLocalFunction(kind: ProxyKind, key: string|keyof M, _context: ProxyContext<M>, member: LocalFunction<M>): MemberProxy<M> {
+        return kind !== "public" ?
+            receiver => (...args: unknown[]) => member.call(receiver, ...args) :
+            () => () => { throw new Error(msg(`Calling local function "${key as string}" at inappropriate time.`)) };
     }
 }
 

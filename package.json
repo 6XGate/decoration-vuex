@@ -33,6 +33,9 @@
   "engines": {
     "node": ">=12.13.0"
   },
+  "files": [
+    "dist/**/*"
+  ],
   "ava": {
     "extensions": [
       "ts"
@@ -43,7 +46,6 @@
     ]
   },
   "devDependencies": {
-    "@ava/babel": "^1.0.1",
     "@babel/core": "^7.12.10",
     "@babel/preset-env": "^7.12.11",
     "@rollup/plugin-typescript": "^8.1.0",
