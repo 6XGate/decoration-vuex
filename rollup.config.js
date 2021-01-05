@@ -19,6 +19,7 @@ const rollupConfig = {
     plugins:  [
         typescript({
             module:         "esnext",
+            target:         "es2015",
             noEmitOnError:  true,
             declaration:    true,
             declarationDir: path.dirname(pkg.typings),

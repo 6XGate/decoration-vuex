@@ -1,0 +1,6 @@
+- Add support for a Continuous Integration service.
+- Add support for sub-module references.
+- Add support for code coverage, linting, and testing status indicators.
+- Add support for UMD and/or IIFE modules, which will require:
+    - Babel transpiling after TypeScript.
+    - Probably additional plug-ins for module resolution.

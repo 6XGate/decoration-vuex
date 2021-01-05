@@ -31,7 +31,7 @@
   },
   "homepage": "https://github.com/6XGate/classy-vuex#readme",
   "engines": {
-    "node": ">=12.13.0"
+    "node": ">=12.9.0"
   },
   "files": [
     "dist/**/*"

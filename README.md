@@ -196,10 +196,18 @@ as a payload.
     }
 ```
 
+Mutations may also access property getters and setters and call other mutations defined on the class.
+
+> TODO: Example
 
 ## Getters and Setters
 
 
 ## Actions
 
+
+## Local Functions
+
+
+## Watchers
 
