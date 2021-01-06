@@ -86,6 +86,8 @@ test("Setter calling mutation", t => {
 test("Setter calling action", t => {
     t.throws(
         () => { t.context.module.badAction = 9 },
-        { instanceOf: Error, message: /^\[classy-vuex\]: Calling action/u },
+        { instanceOf: Error, message: /^\[decoration-vuex\]: Calling action/u },
     );
+
+    t.is(t.context.module.badAction, 8);
 });

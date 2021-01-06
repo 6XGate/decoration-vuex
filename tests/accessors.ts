@@ -93,7 +93,7 @@ test("Accessor calling setter", t => {
     const value = t.context.module.value;
     t.throws(
         () => { console.log(t.context.module.failSetter()) },
-        { instanceOf: Error, message: /^\[classy-vuex\]: Calling setter for/u },
+        { instanceOf: Error, message: /^\[decoration-vuex\]: Calling setter for/u },
     );
 
     t.is(t.context.module.value, value);
@@ -103,7 +103,7 @@ test("Accessor calling mutation", t => {
     const value = t.context.module.value;
     t.throws(
         () => { console.log(t.context.module.failMutations()) },
-        { instanceOf: Error, message: /^\[classy-vuex\]: Calling mutation/u },
+        { instanceOf: Error, message: /^\[decoration-vuex\]: Calling mutation/u },
     );
 
     t.is(t.context.module.value, value);
@@ -113,7 +113,7 @@ test("Accessor calling action", t => {
     const value = t.context.module.value;
     t.throws(
         () => { console.log(t.context.module.failAction()) },
-        { instanceOf: Error, message: /^\[classy-vuex\]: Calling action/u },
+        { instanceOf: Error, message: /^\[decoration-vuex\]: Calling action/u },
     );
 
     t.is(t.context.module.value, value);

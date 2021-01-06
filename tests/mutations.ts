@@ -127,7 +127,7 @@ test.serial("Mutation calls action", t => {
     const value = t.context.module.x;
     t.throws(
         () => { t.context.module.callsAction(8) },
-        { instanceOf: Error, message: /^\[classy-vuex\]: Calling action/u },
+        { instanceOf: Error, message: /^\[decoration-vuex\]: Calling action/u },
     );
 
     t.is(t.context.module.x, value);

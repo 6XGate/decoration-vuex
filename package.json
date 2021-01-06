@@ -1,7 +1,7 @@
 {
-  "name": "classy-vuex",
+  "name": "decoration-vuex",
   "version": "1.0.0",
-  "description": "Create type-safe class-based Vuex stores in TypeScript",
+  "description": "Create type-safe class-based Vuex modules in TypeScript",
   "private": false,
   "main": "dist/index.cjs.js",
   "module": "dist/index.esm.js",
@@ -12,24 +12,24 @@
     "prod": "rollup -c rollup.config.js --environment TARGET:prod",
     "test": "ava",
     "postinstall": "husky install",
-    "prepublishOnly": "pinst --disable",
+    "prepublishOnly": "pinst --disable && npm run prod",
     "postpublish": "pinst --enable"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/6XGate/classy-vuex.git"
+    "url": "git+https://github.com/6XGate/decoration-vuex.git"
   },
   "keywords": [
     "vue",
     "vuex",
     "typescript"
   ],
-  "author": "Matthew Holder",
+  "author": "Matthew Holder (https://www.sleepingcats.org/)",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/6XGate/classy-vuex/issues"
+    "url": "https://github.com/6XGate/decoration-vuex/issues"
   },
-  "homepage": "https://github.com/6XGate/classy-vuex#readme",
+  "homepage": "https://github.com/6XGate/decoration-vuex#readme",
   "engines": {
     "node": ">=12.9.0"
   },
@@ -46,8 +46,6 @@
     ]
   },
   "devDependencies": {
-    "@babel/core": "^7.12.10",
-    "@babel/preset-env": "^7.12.11",
     "@rollup/plugin-typescript": "^8.1.0",
     "@types/lodash": "^4.14.167",
     "@typescript-eslint/eslint-plugin": "^4.12.0",

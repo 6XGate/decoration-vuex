@@ -94,7 +94,7 @@ test.serial("Getting value", async t => {
 test.serial("Setting value in closed state", async t => {
     await t.throwsAsync(
         () => t.context.closed.trySetValue(6),
-        { instanceOf: Error, message: /^\[classy-vuex\]: Cannot modify the state outside mutations/u },
+        { instanceOf: Error, message: /^\[decoration-vuex\]: Cannot modify the state outside mutations/u },
     );
 
     t.is(t.context.closed.value, await t.context.closed.tryGetValue());

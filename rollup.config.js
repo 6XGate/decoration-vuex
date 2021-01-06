@@ -59,4 +59,5 @@ if (target in targets) {
     throw new Error(msg(`Build target ${target} does not exist`));
 }
 
+// noinspection JSUnusedGlobalSymbols
 export default rollupConfig;

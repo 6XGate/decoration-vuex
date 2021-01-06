@@ -69,7 +69,7 @@ test("Getter calling mutation", t => {
     const value = t.context.module.value;
     t.throws(
         () => { console.log(t.context.module.badUsingMutation) },
-        { instanceOf: Error, message: /^\[classy-vuex\]: Calling mutation/u },
+        { instanceOf: Error, message: /^\[decoration-vuex\]: Calling mutation/u },
     );
 
     t.is(t.context.module.value, value);
@@ -79,7 +79,7 @@ test("Getter calling action", t => {
     const value = t.context.module.value;
     t.throws(
         () => { console.log(t.context.module.badUsingAction) },
-        { instanceOf: Error, message: /^\[classy-vuex\]: Calling action/u },
+        { instanceOf: Error, message: /^\[decoration-vuex\]: Calling action/u },
     );
 
     t.is(t.context.module.value, value);

@@ -206,7 +206,7 @@ test.before(t => {
 test.serial("Direct local function call", t => {
     t.throws(
         () => { t.context.closed.coreGetValue() },
-        { instanceOf: Error, message: /^\[classy-vuex\]: Calling local function/u },
+        { instanceOf: Error, message: /^\[decoration-vuex\]: Calling local function/u },
     );
 });
 
@@ -240,7 +240,7 @@ test.serial("Action accessing value", async t => {
 test.serial("Action mutating value in closed state", async t => {
     await t.throwsAsync(
         () => t.context.closed.trySetValue(8),
-        { instanceOf: Error, message: /^\[classy-vuex\]: Cannot modify the state outside mutations/u },
+        { instanceOf: Error, message: /^\[decoration-vuex\]: Cannot modify the state outside mutations/u },
     );
     t.is(await t.context.closed.tryGetValue(), 7 * 2);
 });
@@ -290,62 +290,62 @@ test.serial("Action using action to set X", async t => {
 test.serial("Writing through getter", t => {
     t.throws(
         () => { t.is(t.context.closed.badWriting, NaN) },
-        { instanceOf: Error, message: /^\[classy-vuex\]: Cannot modify the state outside mutations/u },
+        { instanceOf: Error, message: /^\[decoration-vuex\]: Cannot modify the state outside mutations/u },
     );
 });
 
 test.serial("Setting through getter", t => {
     t.throws(
         () => { t.is(t.context.closed.badSetting, NaN) },
-        { instanceOf: Error, message: /^\[classy-vuex\]: Calling setter for/u },
+        { instanceOf: Error, message: /^\[decoration-vuex\]: Calling setter for/u },
     );
 });
 
 test.serial("Mutating through getter", t => {
     t.throws(
         () => { t.is(t.context.closed.badMutating, NaN) },
-        { instanceOf: Error, message: /^\[classy-vuex\]: Calling mutation/u },
+        { instanceOf: Error, message: /^\[decoration-vuex\]: Calling mutation/u },
     );
 });
 
 test.serial("Acting through getter", t => {
     t.throws(
         () => { t.is(t.context.closed.badActing, NaN) },
-        { instanceOf: Error, message: /^\[classy-vuex\]: Calling action/u },
+        { instanceOf: Error, message: /^\[decoration-vuex\]: Calling action/u },
     );
 });
 
 test.serial("Writing through accessor", t => {
     t.throws(
         () => { t.context.closed.failWriting() },
-        { instanceOf: Error, message: /^\[classy-vuex\]: Cannot modify the state outside mutations/u },
+        { instanceOf: Error, message: /^\[decoration-vuex\]: Cannot modify the state outside mutations/u },
     );
 });
 
 test.serial("Setting through accessor", t => {
     t.throws(
         () => { t.context.closed.failSetting() },
-        { instanceOf: Error, message: /^\[classy-vuex\]: Calling setter for/u },
+        { instanceOf: Error, message: /^\[decoration-vuex\]: Calling setter for/u },
     );
 });
 
 test.serial("Mutating through accessor", t => {
     t.throws(
         () => { t.context.closed.failMutating() },
-        { instanceOf: Error, message: /^\[classy-vuex\]: Calling mutation/u },
+        { instanceOf: Error, message: /^\[decoration-vuex\]: Calling mutation/u },
     );
 });
 
 test.serial("Acting through accessor", t => {
     t.throws(
         () => { t.context.closed.failActing() },
-        { instanceOf: Error, message: /^\[classy-vuex\]: Calling action/u },
+        { instanceOf: Error, message: /^\[decoration-vuex\]: Calling action/u },
     );
 });
 
 test.serial("Acting through mutation", t => {
     t.throws(
         () => { t.context.closed.mutantActingUp() },
-        { instanceOf: Error, message: /^\[classy-vuex\]: Calling action/u },
+        { instanceOf: Error, message: /^\[decoration-vuex\]: Calling action/u },
     );
 });
