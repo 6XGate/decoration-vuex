@@ -2,9 +2,15 @@
 
 Create type-safe class-based Vuex modules in TypeScript
 
-# Getting Started
+![Release](https://github.com/6XGate/decoration-vuex/workflows/Release/badge.svg)
 
-## Requirements
+## License
+
+_Decoration for Vuex_ is licensed under the [MIT](LICENSE) license.
+
+## Getting Started
+
+### Requirements
 
 - [Vue](https://vuejs.org/)
 - [Vuex](https://vuex.vuejs.org/)
@@ -15,11 +21,12 @@ Create type-safe class-based Vuex modules in TypeScript
   [Proxy](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Proxy) or provide a polyfill
   of similar functionality.
 
-## Installation
+### Installation
 
 - Install _Decoration for Vuex_ with your favorite package manager;
-  - NPM; `npm install --save-dev decoration-vuex`.
-  - Yarm; `yarn add decoration-vuex --dev`
+  - [npm](https://www.npmjs.com/); `npm install --save-dev decoration-vuex`.
+  - [yarn](https://yarnpkg.com/); `yarn add decoration-vuex --dev`
+  - [pnpm](https://pnpm.js.org/); `pnpm add -D decoration-vuex`
 - Enable experimental decorator support in TypeScript
   - In `tsconfig.json`:
     ```json
@@ -31,7 +38,7 @@ Create type-safe class-based Vuex modules in TypeScript
     ```
   - On the command-line using `--experimentalDecorators`.
 
-## Creating your first module.
+### Creating your first module
 
 With _Decoration_, Vuex modules are written as classes and decorated to indicate what certain members will do.
 
@@ -60,7 +67,7 @@ class Counter extends StoreModule {
 export const counter = new Counter({ store });
 ```
 
-## Using your first module
+### Using your first module
 
 _Decoration_ modules are accessed in Vue component by directly referencing the module instance. This even includes any
 state, getters, mutations, or actions mapped into the component. The `mapState`, `mapGetters`, `mapMutations`, and
@@ -81,9 +88,9 @@ export default Vue.extend({
 });
 ```
 
-# Core Concepts
+## Core Concepts
 
-## Module Constructor
+### Module constructor
 
 When creating a module; if you define a module constructor, it must receive a `RegisterOptions` object and pass it on
 the super constructor.
@@ -103,9 +110,9 @@ class Counter extends StoreModule {
 }
 ```
 
-## State
+### State
 
-### Defining the State
+#### Defining the state
 
 The state of a _Decoration_ defined module is the properties assigned to it at construction or when defining the class.
 As with the state of a regular Vuex module, the state will become part of the store when registered. It will them become
@@ -164,7 +171,7 @@ class Counter extends StoreModule {
 
 As with normal Vuex modules, the state cannot be altered outside a mutation.
 
-### Accessing the state
+#### Accessing the state
 
 Accessing the state within a Vue component or even other code is as simple as referencing the module instance.
 
@@ -186,7 +193,7 @@ Vue.extend({
 })
 ```
 
-## Mutations
+### Mutations
 
 The only way to actually change the state of a module with using a mutation. In _Decoration_, mutations are decorated
 with the `@Mutation`. Within a mutation you may read and alter any state of the module. Mutations may even receive
@@ -228,13 +235,13 @@ class Counter extends StoreModule {
 }
 ```
 
-## Getters 
+### Getters 
 
 There are times when you need to get computed information based on the state of the store using getters. In
 _Decoration_, getters are defined in two ways. Simplest as property getters and for more functionality, you can use
 getter functions.
 
-### Property getters
+#### Property getters
 
 Property getters are simple ECMAScript getters, which may be paired with a setter. As with Vuex getters, they may not
 alter the state, but can read any part of it. They may also access other getters, both properties and functions.
@@ -259,7 +266,7 @@ class Counter extends StoreModule {
 }
 ```
 
-### Getter functions
+#### Getter functions
 
 Sometimes you need to provide more information to a getter to complete its calculation. This is where getter functions
 come in.  In _Decoration_, getter methods are decorated with `@Getter`. They may to read the state and call other
@@ -283,7 +290,7 @@ console.log(counter.pow(2)); // 9
 
 The same rules that apply to getter properties apply to getter functions.
 
-## Setters
+### Setters
 
 If you want to make a getter property read and write; you will have to provide a setter for that property. Setters are
 just property setters that have been registered as a mutation in Vuex. They also must follow the same rules as mutations
@@ -313,7 +320,7 @@ counter.at = 7;
 console.log(counter.at); // 7
 ```
 
-## Actions
+### Actions
 
 Actions in _Decoration_ work the same as in Vuex with little difference. In _Decoration_, actions are decorated with
 `@Action`. They can read the state, use getters, call mutations, and assign to properties that use setters. They can
@@ -351,7 +358,7 @@ const counter = new Counter({ store });
 counter.getServerValue().then(value => console.log(value));
 ```
 
-## Local Functions
+### Local Functions
 
 Vuex modules are meant to provide a source of truth for your application state, but can also do the same for any logic
 related to that state. _Decoration_ allows the use of undecorated methods with the module class for such a purpose.
@@ -392,7 +399,7 @@ class Counter extends StoreModule {
 }
 ```
 
-### Caveats
+#### Local function caveats
 
 Although local functions can be powerful; and may use other public functions, there are a few caveats to be aware of
 using local functions.
@@ -405,7 +412,7 @@ using local functions.
 
   For example; if you call a local function within a mutation, that function cannot call an action.
 
-## Watchers (Experimental)
+### Watchers (experimental)
 
 Watches provide a more straight forward means to watch any specific state on a module. Simply decorate a function with
 `@Watch` and provide it with the path of the state to watch. You may provide additional options from
@@ -431,7 +438,7 @@ class Counter extends StoreModule {
 }
 ```
 
-### Watcher caveats
+#### Watcher caveats
 
 Watchers may provide powerful capabilities, but may be better served by other functions of a module. The following
 caveats should be considered when using watchers.
@@ -442,7 +449,7 @@ caveats should be considered when using watchers.
 Watchers are best used for debugging, logging, and back-end storage features. The following features should be used to
 cover any other use-cases. Setters, mutations, and actions should be used to handle most other use-cases.
 
-## Inheritance
+### Inheritance
 
 A module may inherit functionality from another class, provided that it eventually inherits `StoreModule`. It is
 currently untested whether the base classes may be decorated with `@Module`, but the bottom most class that will be
@@ -450,6 +457,7 @@ registered with the Vuex store must be. All members in the base classes should b
 case.
 
 ```ts
+// Not decorated
 class BaseModule<T extends object> extends StoreModule {
     items: T[];
     current: T;
@@ -478,7 +486,9 @@ class ProductModule extends BaseModule<Product> {
 const products = new ProductModule({ store });
 ```
 
-## Module Options
+## Options
+
+### Module options
 
 The following options may be provided when decorating a class as a module.
 
@@ -489,7 +499,7 @@ export interface ModuleOptions {
 }
 ```
 
-### Open State Modules
+#### Open state modules
 
 An open state module is a module that allows directly mutating the state publicly or from actions. This is done by
 registering mutations for each top level field of the class. This provides a simple and convenient means to expose the
@@ -514,7 +524,7 @@ counter.count = 5;
 console.log(counter.count); // 5
 ```
 
-#### Open State caveats
+##### Open state caveats
 
 Although having an open state is useful, it is only effective for top-level properties. Any properties of objects at the
 top-level of the module will still be protected by Vuex. 
@@ -544,7 +554,7 @@ console.log(counter.count); // 0
 
 In general, open state should be avoided except on simplest of modules.
 
-## Register Options
+### Register options
 
 The following options can or must be provided when instantiating a module. At minimal, the `store` must be provided.
 
@@ -557,7 +567,7 @@ export interface RegisterOptions {
 }
 ```
 
-## Access Restrictions
+## Access restrictions
 
 To maintain the safety and features of Vuex module when defining them with _Decoration_, certain members of a module may
 be off limits when interacted with publicly or from decorated methods. The following methods will only have access to
@@ -604,7 +614,7 @@ the listed features.
 
   Has access to the public interface, but should avoid interacting with the module.
 
-# Acknowledgements
+## Acknowledgements
 
 - Inspired by [Vuex Class Modules](https://github.com/championswimmer/vuex-module-decorators).
 - Uses the following development tools:
@@ -613,3 +623,8 @@ the listed features.
   - [ESLint](https://eslint.org/) pluggable linter
   - [Husky](https://typicode.github.io/husky/#/) for easy Git hooks.
   - [Rollup.js](https://rollupjs.org/) package bundler.
+
+## Roadmap
+
+There is currently no roadmap per se for _Decoration_, but the [PLANS](PLANS.md) file tracks ideas for the future of
+_Decoration_. If an issue was filed, it may appear in the plans file.
