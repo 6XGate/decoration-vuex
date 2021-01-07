@@ -7,9 +7,10 @@ import pkg from "./package.json";
 const target = process.env.TARGET || "dev";
 
 const globals = {
-    "lodash": "_",
-    "vuex":   "Vuex",
-    "vue":    "Vue",
+    "lodash":              "_",
+    "vue":                 "Vue",
+    "vue-class-component": "VueClassComponent",
+    "vuex":                "Vuex",
 };
 
 /** @type {import('rollup').RollupOptions} */

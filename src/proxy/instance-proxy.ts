@@ -9,7 +9,7 @@ import type {
     ProxyContext,
     ProxyKind,
 } from "../details";
-import type { RegisterOptions } from "../options";
+import type { RegisterOptions, ResolvedRegisterOptions } from "../options";
 import type { StoreModule } from "../store-modules";
 import { msg } from "../utils";
 
@@ -54,7 +54,7 @@ class StoreModuleHandler<M extends StoreModule> extends BaseHandler<M> implement
     private readonly restate: null|ProxyRestate<M>;
     private readonly proxies = new Map<string|keyof M, MemberProxy<M>>();
 
-    constructor(kind: ProxyKind, context: ProxyContext<M>, options: RegisterOptions, definition: ModuleDefinition<M>) {
+    constructor(kind: ProxyKind, context: ProxyContext<M>, options: ResolvedRegisterOptions, definition: ModuleDefinition<M>) {
         super();
 
         this.definition = definition;
@@ -151,11 +151,11 @@ class StoreModuleHandler<M extends StoreModule> extends BaseHandler<M> implement
 
         switch (kind) {
         case "public":
-            return (key: keyof M, value: M[typeof key]): void => { store.commit(`${name}/set__${key as string}`, value) };
+            return (key: keyof M, value: M[typeof key]): void => { store.commit(`${name}/${key as string}`, value) };
         case "mutation":
             return (key: keyof M, value: M[typeof key]): void => { this.context.state[key] = value };
         case "action":
-            return (key: keyof M, value: M[typeof key]): void => { this.context.commit?.(`set__${key as string}`, value) };
+            return (key: keyof M, value: M[typeof key]): void => { this.context.commit?.(key as string, value) };
         default:
             return null;
         }
@@ -163,7 +163,7 @@ class StoreModuleHandler<M extends StoreModule> extends BaseHandler<M> implement
 
     private getGetter(_kind: ProxyKind, key: string|keyof M, context: ProxyContext<M>, handler: LocalGetter<M>): MemberProxy<M> {
         if (context.getters) {
-            return () => context.getters?.[`${this.namespace}get__${key as string}`];
+            return () => context.getters?.[`${this.namespace}${key as string}`];
         }
 
         return receiver => handler.call(receiver);
@@ -172,7 +172,7 @@ class StoreModuleHandler<M extends StoreModule> extends BaseHandler<M> implement
     private getSetter(kind: ProxyKind, context: ProxyContext<M>): ProxySetter<M> {
         if (context.commit) {
             return (key, value) => {
-                context.commit?.(`${this.namespace}set__${key as string}`, value);
+                context.commit?.(`${this.namespace}${key as string}`, value);
             };
         }
 
@@ -186,7 +186,7 @@ class StoreModuleHandler<M extends StoreModule> extends BaseHandler<M> implement
     private getAccessor(_kind: ProxyKind, key: string|keyof M, context: ProxyContext<M>, member: LocalAccessor<M>): MemberProxy<M> {
         if (context.getters) {
             return () => (...payload: unknown[]) =>
-                (context.getters?.[`${this.namespace}${key as string}`] as ProxyAccess)(payload);
+                (context.getters?.[`${this.namespace}${key as string}`] as ProxyAccess)(...payload);
         }
 
         return receiver => (...payload: unknown[]) => member.call(receiver, ...payload) as unknown;
@@ -222,10 +222,9 @@ export function makeInstanceProxy<M extends StoreModule>(
     instance: M,
     kind: ProxyKind,
     context: ProxyContext<M>,
-    options: RegisterOptions,
     definition: ModuleDefinition<M>,
 ): M {
-    return new Proxy(instance, new StoreModuleHandler<M>(kind, context, options, definition));
+    return new Proxy(instance, new StoreModuleHandler<M>(kind, context, instance["#options"], definition));
 }
 
 // Proxies
