@@ -24,19 +24,19 @@ _Decoration for Vuex_ is licensed under the [MIT](LICENSE) license.
 ### Installation
 
 - Install _Decoration for Vuex_ with your favorite package manager;
-  - [npm](https://www.npmjs.com/); `npm install --save-dev decoration-vuex`.
-  - [yarn](https://yarnpkg.com/); `yarn add decoration-vuex --dev`
-  - [pnpm](https://pnpm.js.org/); `pnpm add -D decoration-vuex`
+    - [npm](https://www.npmjs.com/); `npm install --save-dev decoration-vuex`.
+    - [yarn](https://yarnpkg.com/); `yarn add decoration-vuex --dev`
+    - [pnpm](https://pnpm.js.org/); `pnpm add -D decoration-vuex`
 - Enable experimental decorator support in TypeScript
-  - In `tsconfig.json`:
-    ```json
-    {
-      "compilerOptions": {
-        "experimentalDecorators": true
-      }
-    }
-    ```
-  - On the command-line using `--experimentalDecorators`.
+    - In `tsconfig.json`:
+        ```json
+        {
+            "compilerOptions": {
+                "experimentalDecorators": true
+            }
+        }
+        ```
+    - On the command-line using `--experimentalDecorators`.
 
 ### Creating your first module
 
@@ -71,7 +71,7 @@ export const counter = new Counter({ store });
 
 _Decoration_ modules are accessed in Vue component by directly referencing the module instance. This even includes any
 state, getters, mutations, or actions mapped into the component. The `mapState`, `mapGetters`, `mapMutations`, and
-`mapActions` helpers are not used.
+`mapActions` helpers are not needed, but are supported.
 
 ```ts
 // MyComponent.vue (script part)
@@ -235,7 +235,7 @@ class Counter extends StoreModule {
 }
 ```
 
-### Getters 
+### Getters
 
 There are times when you need to get computed information based on the state of the store using getters. In
 _Decoration_, getters are defined in two ways. Simplest as property getters and for more functionality, you can use
@@ -527,7 +527,7 @@ console.log(counter.count); // 5
 ##### Open state caveats
 
 Although having an open state is useful, it is only effective for top-level properties. Any properties of objects at the
-top-level of the module will still be protected by Vuex. 
+top-level of the module will still be protected by Vuex.
 
 ```ts
 @Module({ openState: true })
@@ -574,36 +574,36 @@ be off limits when interacted with publicly or from decorated methods. The follo
 the listed features.
 
 - **Public consumer**
-  
+
   Can read the state and call all other methods except local functions or watchers.
 
 - **Getters**
 
   Can do the following
 
-  - Read the state.
-  - Use other properties with getters.
-  - Call other getter methods.
+    - Read the state.
+    - Use other properties with getters.
+    - Call other getter methods.
 
 - **Mutations and setters**
 
   Can do the following
 
-  - Read and alter the state at any level.
-  - Use properties with getters.
-  - Call getter methods.
-  - Use other properties with setters.
-  - Call other mutations.
+    - Read and alter the state at any level.
+    - Use properties with getters.
+    - Call getter methods.
+    - Use other properties with setters.
+    - Call other mutations.
 
 - **Actions**
 
   Can do the following
 
-  - Read the state
-  - Use properties with getters and call getter methods.
-  - Use properties with setters and call mutations.
-  - Call other actions.
-  
+    - Read the state
+    - Use properties with getters and call getter methods.
+    - Use properties with setters and call mutations.
+    - Call other actions.
+
   If the module is open state, then altering the top-level of the state is possible.
 
 - **Local functions**
@@ -614,15 +614,104 @@ the listed features.
 
   Has access to the public interface, but should avoid interacting with the module.
 
+## Mappers
+
+First, it is recommended that _Decoration_ based module members be used directly from Vue components. That being said.
+Two methods can be used to map store members into components. One is the built-in Vuex mapper functions. The other is
+mapper decorations provided by _Decoration_.
+
+### Mapper decorations
+
+Mapper decorator provide a safer, though not fool proof, means of mapping module members into components. They should be
+combined with utility types to ensure you are mapping a member that exists on the module and that its type is properly
+conveyed.
+
+Mapper decorators are primarily for use with Vue Class Components.
+
+```ts
+@Component
+class MyComponent extends Vue {
+    @MapAction(myModule, "fetchData")
+    readonly fetchData!: ActionType<typeof myModule, "fetchData">;
+}
+```
+
+The following mappers exist and utility types exist.
+- `MapState` and `StateType` for fields.
+- `MapGetter` and `GetterType` for property getters and getter functions.
+- `MapProperty` and `PropertyType` for property getter and setter combinations.
+- `MapMutation` and `MutationType` for mutations.
+- `MapAction` and `ActionType` for actions.
+
+### Mapper functions
+
+To map any part of a module using the original `mapState`, `mapGetters`, `mapMutations`, or `mapActions` functions, you
+will need to get the name of the module in the store. _Decoration_ provides the `getModuleName` function for that
+purpose. There is a caveat with using these function. They don't provide much type safety without asserting the results
+of the mapper call.
+
+Mapper function are primarily for use with option defined components.
+
+```ts
+// noinspection JSAnnotator
+export default Vue.extend({
+    methods: {
+        ...mapActions(getModuleName(myModule), ["fetchData"]) as {
+            fetchData([string]): Promise<void>; // Noticed the paramters must be wrapped in an array.
+        },
+        async refresh() {
+            await this.fetchData(["http://www.example.com/data"]);
+        }
+    },
+})
+```
+
+#### Mapper function caveats
+
+The following rules apply using mapper functions with mapped _Decoration_ based modules.
+
+- **Regular mutations and action with parameters**: the arguments must be passed in an array. Example:
+    ```ts
+    @Module
+    class Modules {
+        @Action
+        actionInModule(url: string, verb: string): Promise<string> { /* ... */ }
+        // type ActionWhenMapped = ([string, string]) => Promise<string>;
+
+        @Mutation
+        mutationInModule(data: string): void { /* ... */ }
+        // type MutationWhenMapped = ([string]) => void;
+    }
+    ```
+- **Setter mutations**: the only argument is the value. Example:
+    ```ts
+    @Module
+    class Modules {
+        get x(): number { /* ... */ }
+        set x(value: number) { /* ... */ }
+        // type SetterMutationWhenMapped = (number) => void;
+    }
+    ```
+- **Getter functions** function just as they normally would.
+    ```ts
+    @Module
+    class Modules {
+        @Getter
+        getPow(by: number): number { /* ... */ }
+        // type GetterWhenMapped = (by: number) => number;
+    }
+    ```
+- **Getters and state** function just as they normally would.
+
 ## Acknowledgements
 
 - Inspired by [Vuex Class Modules](https://github.com/championswimmer/vuex-module-decorators).
 - Uses the following development tools:
-  - The [TypeScript](https://www.typescriptlang.org/) language
-  - [Awa](https://github.com/avajs/ava) testing framework
-  - [ESLint](https://eslint.org/) pluggable linter
-  - [Husky](https://typicode.github.io/husky/#/) for easy Git hooks.
-  - [Rollup.js](https://rollupjs.org/) package bundler.
+    - The [TypeScript](https://www.typescriptlang.org/) language
+    - [Awa](https://github.com/avajs/ava) testing framework
+    - [ESLint](https://eslint.org/) pluggable linter
+    - [Husky](https://typicode.github.io/husky/#/) for easy Git hooks.
+    - [Rollup.js](https://rollupjs.org/) package bundler.
 
 ## Roadmap
 

@@ -1,11 +1,20 @@
-import type { ModuleOptions, RegisterOptions } from "./options";
-
+import type { ModuleOptions, RegisterOptions, ResolvedRegisterOptions } from "./options";
 
 export class StoreModule {
-    static __options__?: ModuleOptions;
+    static ["@options"]?: ModuleOptions;
+    ["#options"]: ResolvedRegisterOptions;
 
-    // eslint-disable-next-line @typescript-eslint/no-useless-constructor
-    constructor(_options: RegisterOptions) {
-        // Simply provides the common constructor signature.
+    constructor(options: RegisterOptions) {
+        // Record the options on the object in a way that it cannot be made reactive.
+        Object.defineProperty(this, "#options", {
+            configurable: false,
+            enumerable:   false,
+            writable:     false,
+            value:        { ...options, name: options.name || this.constructor.name },
+        });
     }
+}
+
+export function getModuleName(module: StoreModule): string {
+    return module["#options"].name;
 }
