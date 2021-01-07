@@ -1,5 +1,6 @@
 import path from "path";
 import typescript from "@rollup/plugin-typescript";
+import { terser } from "rollup-plugin-terser";
 import { makeExternals, msg } from "./build/utilities";
 import pkg from "./package.json";
 
@@ -11,6 +12,22 @@ const globals = {
     "vue":                 "Vue",
     "vue-class-component": "VueClassComponent",
     "vuex":                "Vuex",
+};
+
+/** @type {{ cjs: import('rollup').OutputOptions, esm: import('rollup').OutputOptions }} */
+const outputs = {
+    cjs: {
+        dir:            path.dirname(pkg.main),
+        entryFileNames: path.basename(pkg.main),
+        format:         "commonjs",
+        sourcemap:      true,
+    },
+    esm: {
+        dir:            path.dirname(pkg.module),
+        entryFileNames: path.basename(pkg.module),
+        format:         "esm",
+        sourcemap:      true,
+    },
 };
 
 /** @type {import('rollup').RollupOptions} */
@@ -29,20 +46,7 @@ const rollupConfig = {
             include:        ["./src/**/*.ts"],
         }),
     ],
-    output: [
-        {
-            dir:            path.dirname(pkg.main),
-            entryFileNames: path.basename(pkg.main),
-            format:         "commonjs",
-            sourcemap:      true,
-        },
-        {
-            dir:            path.dirname(pkg.module),
-            entryFileNames: path.basename(pkg.module),
-            format:         "esm",
-            sourcemap:      true,
-        },
-    ],
+    output: [ outputs.cjs, outputs.esm ],
 };
 
 const targets = {
@@ -50,7 +54,8 @@ const targets = {
 
     },
     prod: () => {
-
+        outputs.cjs.plugins = [ ...(outputs.cjs.plugins || []), terser() ];
+        outputs.esm.plugins = [ ...(outputs.esm.plugins || []), terser() ];
     },
 };
 
