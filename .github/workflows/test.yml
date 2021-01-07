@@ -1,9 +1,9 @@
-name: Release
+name: Unit tests
 on:
   pull_request:
     branches: [ develop ]
 jobs:
-  build:
+  test:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2

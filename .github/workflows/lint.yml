@@ -1,9 +1,9 @@
-name: Release
+name: Lint test
 on:
   pull_request:
     branches: [ develop ]
 jobs:
-  build:
+  lint:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
