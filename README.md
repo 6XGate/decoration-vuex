@@ -2,7 +2,9 @@
 
 Create type-safe class-based Vuex modules in TypeScript
 
-![Release](https://github.com/6XGate/decoration-vuex/workflows/Release/badge.svg)
+![Lint test](https://github.com/6XGate/decoration-vuex/workflows/Lint%20test/badge.svg?branch=develop)
+![Unit tests](https://github.com/6XGate/decoration-vuex/workflows/Unit%20tests/badge.svg?branch=develop)
+![Build test](https://github.com/6XGate/decoration-vuex/workflows/Build%20test/badge.svg?branch=develop)
 
 ## License
 
