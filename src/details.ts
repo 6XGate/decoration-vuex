@@ -41,9 +41,9 @@ export type WatchDescriptor<M extends StoreModule> = {
 export type LocalFunction<M extends StoreModule> = (this: M, ...args: unknown[]) => unknown;
 
 export type LocalMember<M extends StoreModule> =
-    LocalAccessor<M>|LocalMutation<M>|LocalAction<M>|LocalWatcher<M>|LocalFunction<M>;
+    StoreModule[keyof StoreModule]|LocalAccessor<M>|LocalMutation<M>|LocalAction<M>|LocalWatcher<M>|LocalFunction<M>;
 
-export type ProxyAccess = (args: unknown[]) => unknown;
+export type ProxyAccess = (...args: unknown[]) => unknown;
 
 type MemberKind = "state"|"getter"|"accessor"|"mutation"|"action"|"watcher"|"local";
 

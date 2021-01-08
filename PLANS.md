@@ -1,19 +1,19 @@
 - Watcher improvements:
-  - Create watcher tests.
-  - Test the limits of what watchers may do and select or create an appropriate type of proxy.
-  - Add a module `$watch` method for dynamically attached watchers.
-  - Add support for using a getter method rather than a path for watchers.
+    - Create watcher tests. [ [#4](https://github.com/6XGate/decoration-vuex/issues/4) ]
+    - Test the limits of what watchers may do and select or create an appropriate type of proxy.
+    - Add a module `$watch` method for dynamically attached watchers.
+    - Add support for using a getter method rather than a path for watchers.
 - Local function improvements:
-  - Allow public use of local functions, or provide a public equivalent.
+    - Allow public use of local functions, or provide a public equivalent.
 - General improvements:
-  - Add support for sub-module references.
-  - Support, or block, inheriting classes already decorated with `@Module`.
-  - Maybe, support open-state access on objects and arrays of a module.
+    - Add support for sub-module references.
+    - Support, or block, inheriting classes already decorated with `@Module`.
+    - Maybe, support open-state access on objects and arrays of a module.
 - Project improvements:
-  - Add support for a Continuous Integration service.
-  - Add support for code coverage, linting, and testing status indicators.
-  - Add support for UMD and/or IIFE modules, which will require:
-    - Babel transpiling after TypeScript.
-    - Probably additional plug-ins for module resolution.
-  - Add additional features like those in
-    [Arnav Gupta's Vuex Class Decorators](https://github.com/championswimmer/vuex-module-decorators).
+    - Add support for continuous integration, code coverage, linting, and testing status indicators. [
+      [#2](https://github.com/6XGate/decoration-vuex/issues/2),
+      [#3](https://github.com/6XGate/decoration-vuex/issues/3) ]
+    - Add support for UMD and/or IIFE modules, which will require. [
+      [#5](https://github.com/6XGate/decoration-vuex/issues/5) ]
+    - Add additional features like those in
+      [Arnav Gupta's Vuex Class Decorators](https://github.com/championswimmer/vuex-module-decorators).

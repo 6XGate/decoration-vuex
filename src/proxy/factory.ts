@@ -12,7 +12,6 @@ import type {
     WatchDescriptor,
 } from "../details";
 import { ModuleDefinition } from "../details";
-import type { RegisterOptions, ResolvedRegisterOptions } from "../options";
 import { StoreModule } from "../store-modules";
 import { msg } from "../utils";
 import { makeInstanceProxy } from "./instance-proxy";
@@ -21,15 +20,13 @@ type CompleteModule<S, R> = SetRequired<Module<S, R>, "namespaced"|"state"|"gett
 
 class StoreModuleProxyFactory<M extends typeof StoreModule> {
     private readonly definition: ModuleDefinition<InstanceType<M>>;
-    private readonly options: ResolvedRegisterOptions;
     private readonly instance: InstanceType<M>;
     private readonly cache = new Map<ProxyKind, InstanceType<M>>();
 
-    constructor(constructor: M, instance: InstanceType<M>, options: RegisterOptions) {
+    constructor(constructor: M, instance: InstanceType<M>) {
         type S = InstanceType<M>;
 
-        this.definition = new ModuleDefinition<InstanceType<M>>(constructor.__options__ || {});
-        this.options = { ...options, name: options.name || constructor.name };
+        this.definition = new ModuleDefinition<InstanceType<M>>(constructor["@options"] || {});
         this.instance = instance;
 
         // Register state, which will be needed for openState modules.
@@ -126,7 +123,7 @@ class StoreModuleProxyFactory<M extends typeof StoreModule> {
     }
 
     makePublicProxy(): InstanceType<M> {
-        const { store, name }: { store: Store<Record<string, unknown>>; name: string } = this.options;
+        const { store, name }: { store: Store<Record<string, unknown>>; name: string } = this.instance["#options"];
 
         return this.getProxy({ ...store, state: store.state[name] as InstanceType<M> }, "public");
     }
@@ -169,7 +166,7 @@ class StoreModuleProxyFactory<M extends typeof StoreModule> {
     private registerModule(): void {
         type S = InstanceType<M>;
 
-        const { store, name }: { store: Store<Record<string, unknown>>; name: string } = this.options;
+        const { store, name }: { store: Store<Record<string, unknown>>; name: string } = this.instance["#options"];
 
         const module: CompleteModule<S, unknown> = {
             namespaced: true,
@@ -183,13 +180,13 @@ class StoreModuleProxyFactory<M extends typeof StoreModule> {
         // State mutations
         if (this.definition.options.openState) {
             for (const key of this.definition.state) {
-                module.mutations[`set__${key as string}`] = (state, payload: S[typeof key]) => { state[key] = payload };
+                module.mutations[`${key as string}`] = (state, payload: S[typeof key]) => { state[key] = payload };
             }
         }
 
         // Getters and setters
         for (const [ key, getter ] of this.definition.getters.entries()) {
-            module.getters[`get__${key as string}`] = (state, getters: GetterTree<S, unknown>) => {
+            module.getters[key as string] = (state, getters: GetterTree<S, unknown>) => {
                 const getterProxy = this.getProxy({ state, getters }, "getter");
 
                 return getter.call(getterProxy);
@@ -198,7 +195,7 @@ class StoreModuleProxyFactory<M extends typeof StoreModule> {
             // const setter = key in this.moduleDefinition.setters && this.moduleDefinition.setters[key];
             const setter = this.definition.setters.get(key);
             if (setter) {
-                module.mutations[`set__${key as string}`] = (state, payload: unknown) => {
+                module.mutations[key as string] = (state, payload: unknown) => {
                     const mutationProxy = this.getProxy({ state }, "mutation");
 
                     setter.call(mutationProxy, payload);
@@ -211,25 +208,25 @@ class StoreModuleProxyFactory<M extends typeof StoreModule> {
             module.getters[key as string] = (state, getters: GetterTree<S, unknown>) => {
                 const getterProxy = this.getProxy({ state, getters }, "getter");
 
-                return (args: unknown[]) => accessor.call(getterProxy, ...args) as unknown;
+                return (...args: unknown[]) => accessor.call(getterProxy, ...args) as unknown;
             };
         }
 
         // Mutations
         for (const [ key, mutation ] of this.definition.mutations.entries()) {
-            module.mutations[key as string] = (state, payload: unknown[]) => {
+            module.mutations[key as string] = (state, payload: undefined|unknown[]) => {
                 const mutationProxy = this.getProxy({ state }, "mutation");
 
-                mutation.call(mutationProxy, ...payload);
+                mutation.call(mutationProxy, ...(payload || []));
             };
         }
 
         // Actions
         for (const [ key, action ] of this.definition.actions.entries()) {
-            module.actions[key as string] = (context, payload: unknown[]) => {
+            module.actions[key as string] = (context, payload: undefined|unknown[]) => {
                 const actionProxy = this.getProxy({ ...context }, "action");
 
-                return action.call(actionProxy, ...payload);
+                return action.call(actionProxy, ...(payload || []));
             };
         }
 
@@ -259,17 +256,13 @@ class StoreModuleProxyFactory<M extends typeof StoreModule> {
     }
 
     private makeProxy(context: ProxyContext<InstanceType<M>>, kind: ProxyKind): InstanceType<M> {
-        const proxy = makeInstanceProxy(this.instance, kind, context, this.options, this.definition);
+        const proxy = makeInstanceProxy(this.instance, kind, context, this.definition);
         this.cache.set(kind, proxy);
 
         return proxy;
     }
 }
 
-export function makeProxyFactory<M extends typeof StoreModule>(
-    constructor: M,
-    instance: InstanceType<M>,
-    options: RegisterOptions,
-): StoreModuleProxyFactory<M> {
-    return new StoreModuleProxyFactory<M>(constructor, instance, options);
+export function makeProxyFactory<M extends typeof StoreModule>(constructor: M, instance: InstanceType<M>): StoreModuleProxyFactory<M> {
+    return new StoreModuleProxyFactory<M>(constructor, instance);
 }

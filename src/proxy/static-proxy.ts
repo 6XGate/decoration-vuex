@@ -8,7 +8,7 @@ class StoreModuleStaticHandler<M extends typeof StoreModule> implements ProxyHan
         type S = InstanceType<M>;
 
         const instance = new Target(...args) as S;
-        const factory = makeProxyFactory(Target, instance, args[0]);
+        const factory = makeProxyFactory(Target, instance);
 
         return factory.makePublicProxy();
     }

@@ -12,7 +12,7 @@ interface StoreModuleDecorator {
 
 function moduleDecorator(moduleOptions?: ModuleOptions): StoreModuleDecorator {
     return <M extends typeof StoreModule>(constructor: M): M => {
-        Object.defineProperty(constructor, "__options__", {
+        Object.defineProperty(constructor, "@options", {
             configurable: false,
             enumerable:   false,
             writable:     false,

@@ -3,7 +3,7 @@ import storeTest from "ava";
 import Vue from "vue";
 import Vuex, { Store } from "vuex";
 import type { RegisterOptions } from "../src";
-import { Module, StoreModule } from "../src";
+import { getModuleName, Module, StoreModule } from "../src";
 
 @Module
 class TestModule extends StoreModule {
@@ -33,7 +33,9 @@ test.before(t => {
 });
 
 test("create", t => {
-    t.true(t.context.store.state.TestModule instanceof TestModule, "testModule is not a TestModule");
+    t.true(t.context.store.state.TestModule instanceof TestModule, "TestModule is not a TestModule");
+    t.is(getModuleName(t.context.store.state.TestModule), "TestModule");
+    t.is(getModuleName(t.context.module), "TestModule");
 });
 
 test("state", t => {
