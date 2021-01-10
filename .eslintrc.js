@@ -219,6 +219,10 @@ module.exports = {
     },
     overrides: [
         {
+            // Make sure `.cjs` files are processed.
+            files: ["*.cjs"],
+        },
+        {
             files: [ "./build/**/*.js", "./rollup.*.js" ],
             rules: {
                 "node/no-unsupported-features/es-syntax": [

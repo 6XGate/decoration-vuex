@@ -1,4 +1,3 @@
-import { isSymbol } from "lodash";
 import type {
     LocalAccessor,
     LocalFunction,
@@ -102,7 +101,7 @@ class StoreModuleHandler<M extends StoreModule> extends BaseHandler<M> implement
 
     get(target: M, key: keyof M, receiver: M): unknown {
         // Short-circuit; state, or local and prototype inherited symbol accessed fields.
-        if (isSymbol(key) || Object.prototype.hasOwnProperty.call(target, key)) {
+        if (typeof key === "symbol" || Object.prototype.hasOwnProperty.call(target, key)) {
             return target[key];
         }
 
@@ -119,7 +118,7 @@ class StoreModuleHandler<M extends StoreModule> extends BaseHandler<M> implement
     set(target: M, key: keyof M, value: M[typeof key], receiver: M): boolean {
         // Short-circuit; state, or local and prototype inherited symbol accessed fields.
         if (Object.prototype.hasOwnProperty.call(target, key)) {
-            if (isSymbol(key)) {
+            if (typeof key === "symbol") {
                 target[key] = value as M[typeof key];
 
                 return true;
