@@ -5,11 +5,12 @@
   "private": false,
   "main": "dist/index.cjs.js",
   "module": "dist/index.esm.js",
+  "browser": "dist/index.iife.js",
   "typings": "dist/types/index.d.ts",
   "scripts": {
-    "lint": "eslint src tests build rollup.config.js .eslintrc.js",
-    "dev": "rollup -c rollup.config.js --environment TARGET:dev",
-    "prod": "rollup -c rollup.config.js --environment TARGET:prod",
+    "lint": "eslint src tests build rollup.config.ts .eslintrc.js",
+    "dev": "rollup -c build/rollup.config.cjs --environment TARGET:dev",
+    "prod": "rollup -c build/rollup.config.cjs --environment TARGET:prod",
     "test": "ava",
     "postinstall": "husky install",
     "prepublishOnly": "pinst --disable && npm run prod",
@@ -64,11 +65,11 @@
     "ts-node": "^9.1.1",
     "tslib": "^2.1.0",
     "type-fest": "^0.20.2",
-    "typescript": "^4.1.3"
+    "typescript": "^4.1.3",
+    "vue": "^2.6.12"
   },
   "dependencies": {
     "lodash": "^4.17.20",
-    "vue": "^2.6.12",
     "vue-class-component": "^7.2.6",
     "vuex": "^3.6.0"
   }

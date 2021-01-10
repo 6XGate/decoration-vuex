@@ -10,10 +10,5 @@
     - Support, or block, inheriting classes already decorated with `@Module`.
     - Maybe, support open-state access on objects and arrays of a module.
 - Project improvements:
-    - Add support for continuous integration, code coverage, linting, and testing status indicators. [
-      [#2](https://github.com/6XGate/decoration-vuex/issues/2),
-      [#3](https://github.com/6XGate/decoration-vuex/issues/3) ]
-    - Add support for UMD and/or IIFE modules, which will require. [
-      [#5](https://github.com/6XGate/decoration-vuex/issues/5) ]
     - Add additional features like those in
       [Arnav Gupta's Vuex Class Decorators](https://github.com/championswimmer/vuex-module-decorators).
