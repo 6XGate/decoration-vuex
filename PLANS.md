@@ -12,3 +12,4 @@
 - Project improvements:
     - Add additional features like those in
       [Arnav Gupta's Vuex Class Decorators](https://github.com/championswimmer/vuex-module-decorators).
+    - Add AVA rules for ESLint.

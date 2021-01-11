@@ -1,6 +1,7 @@
 import { get } from "lodash";
 import type { SetRequired } from "type-fest";
 import type { GetterTree, Module, Store } from "vuex";
+import { getLogger } from "../debug/logger";
 import type {
     LocalAccessor,
     LocalAction,
@@ -74,7 +75,7 @@ class StoreModuleProxyFactory<M extends typeof StoreModule> {
                 // Other part, make sure they are functions.
                 const value = base.prototype[key as keyof StoreModule] as LocalMember<InstanceType<M>>;
                 if (typeof value !== "function") {
-                    console.warn("[system/vuex]: Module prototype has property that is neither get/set or a function");
+                    getLogger().warn(msg(`Module prototype has property ${key} that is neither get/set or a function`));
 
                     // eslint-disable-next-line no-continue
                     continue;

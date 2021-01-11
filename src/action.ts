@@ -9,9 +9,11 @@ import { getModuleName } from "./store-modules";
 type Descriptor<M extends StoreModule> = TypedPropertyDescriptor<LocalAction<M>>;
 
 export function Action<M extends StoreModule>(_target: M, _key: string, descriptor: Descriptor<M>): Descriptor<M> {
-    if (typeof descriptor.value === "function") {
-        descriptor.value.__action__ = true;
+    if (typeof descriptor !== "object" || typeof descriptor.value !== "function") {
+        throw new TypeError("Only functions may be decorated with @Action");
     }
+
+    descriptor.value.__action__ = true;
 
     return descriptor;
 }
@@ -25,6 +27,7 @@ export function MapAction<M extends StoreModule, K extends keyof M>(module: M, a
             [key]: (dispatch, ...args: unknown[]) => dispatch(action as string, args),
         });
 
+        // TODO: Determine test to cover both cases.
         const methods = (options.methods || (options.methods = {}));
         // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         methods[key] = mappings[key]!;
