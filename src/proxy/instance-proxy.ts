@@ -1,4 +1,3 @@
-import { getLogger } from "../debug/logger";
 import type {
     LocalAccessor,
     LocalFunction,
@@ -111,10 +110,7 @@ class StoreModuleHandler<M extends StoreModule> implements ProxyHandler<M> {
             return true;
         }
 
-        // TODO: Add test to improve coverage.
-        getLogger().warn(msg(`Cannot modify property ${key as string} of store.`));
-
-        return false;
+        throw new ReferenceError(msg(`Cannot add or modify property ${key as string} of store.`));
     }
 
     private getStateSetter(kind: ProxyKind): null|ProxyRestate<M> {

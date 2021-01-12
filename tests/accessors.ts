@@ -4,6 +4,8 @@ import Vue from "vue";
 import Vuex, { Store } from "vuex";
 import { Getter, Mutation, Action, Module, StoreModule } from "../src";
 
+const ignore = (..._ignore: unknown[]): void => undefined;
+
 @Module
 class AccessorModule extends StoreModule {
     value = 5;
@@ -92,7 +94,7 @@ test("Accessor with many inputs", t => {
 test("Accessor calling setter", t => {
     const value = t.context.module.value;
     t.throws(
-        () => { console.log(t.context.module.failSetter()) },
+        () => { ignore(t.context.module.failSetter()) },
         { instanceOf: Error, message: /^\[decoration-vuex\]: Calling setter for/u },
     );
 
@@ -102,7 +104,7 @@ test("Accessor calling setter", t => {
 test("Accessor calling mutation", t => {
     const value = t.context.module.value;
     t.throws(
-        () => { console.log(t.context.module.failMutations()) },
+        () => { ignore(t.context.module.failMutations()) },
         { instanceOf: Error, message: /^\[decoration-vuex\]: Calling mutation/u },
     );
 
@@ -112,7 +114,7 @@ test("Accessor calling mutation", t => {
 test("Accessor calling action", t => {
     const value = t.context.module.value;
     t.throws(
-        () => { console.log(t.context.module.failAction()) },
+        () => { ignore(t.context.module.failAction()) },
         { instanceOf: Error, message: /^\[decoration-vuex\]: Calling action/u },
     );
 

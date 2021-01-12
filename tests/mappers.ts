@@ -19,6 +19,8 @@ import {
     getModuleName,
 } from "../src";
 
+const ignore = (..._ignore: unknown[]): void => undefined;
+
 const makeContext = identity(() => {
     Vue.use(Vuex);
 
@@ -144,4 +146,64 @@ test.serial("Function mappers", async t => {
     await t.notThrowsAsync(async () => { await comp2.increment([2]) });
     t.is(comp2.value, 12);
     t.is(comp2.next, 13);
+});
+
+test("First decorator: state", t => {
+    t.notThrows(() => {
+        @Component
+        class Comp extends Vue {
+            @MapState(t.context.module, "value")
+            readonly value!: StateType<typeof t.context.module, "value">;
+        }
+
+        ignore(Comp);
+    });
+});
+
+test("First decorator: property", t => {
+    t.notThrows(() => {
+        @Component
+        class Comp extends Vue {
+            @MapProperty(t.context.module, "x")
+            readonly value!: StateType<typeof t.context.module, "value">;
+        }
+
+        ignore(Comp);
+    });
+});
+
+test("First decorator: getter", t => {
+    t.notThrows(() => {
+        @Component
+        class Comp extends Vue {
+            @MapGetter(t.context.module, "pow")
+            readonly pow!: GetterType<typeof t.context.module, "pow">;
+        }
+
+        ignore(Comp);
+    });
+});
+
+test("First decorator: mutation", t => {
+    t.notThrows(() => {
+        @Component
+        class Comp extends Vue {
+            @MapMutation(t.context.module, "inc")
+            readonly inc!: MutationType<typeof t.context.module, "inc">;
+        }
+
+        ignore(Comp);
+    });
+});
+
+test("First decorator: action", t => {
+    t.notThrows(() => {
+        @Component
+        class Comp extends Vue {
+            @MapAction(t.context.module, "increment")
+            readonly increment!: ActionType<typeof t.context.module, "increment">;
+        }
+
+        ignore(Comp);
+    });
 });

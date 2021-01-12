@@ -6,7 +6,7 @@ import Vue from "vue";
 import Vuex, { Store } from "vuex";
 import { Action, getLogger, Getter, Module, Mutation, ObservableLogger, setLogger, StoreModule, Watch } from "../src";
 
-const ignore = (_ignore: unknown): void => undefined;
+const ignore = (..._ignore: unknown[]): void => undefined;
 
 const test = storeTest as TestInterface<{
     store: Store<unknown>;
@@ -22,8 +22,9 @@ test("Changing method type: wasn't getter", t => {
     t.throws(() => {
         class Base extends StoreModule {
             @Action
-            // eslint-disable-next-line class-methods-use-this
             time(): Promise<void> {
+                ignore(this);
+
                 return Promise.resolve(undefined);
             }
         }
@@ -31,8 +32,9 @@ test("Changing method type: wasn't getter", t => {
         @Module
         class Derived extends Base {
             // @ts-expect-error Changing member type
-            // eslint-disable-next-line class-methods-use-this
             get time(): number {
+                ignore(this);
+
                 return Math.random() * 2;
             }
         }
@@ -48,8 +50,9 @@ test("Changing method type: wasn't accessor", t => {
     t.throws(() => {
         class Base extends StoreModule {
             @Action
-            // eslint-disable-next-line class-methods-use-this
             time(): Promise<void> {
+                ignore(this);
+
                 return Promise.resolve(undefined);
             }
         }
@@ -58,8 +61,9 @@ test("Changing method type: wasn't accessor", t => {
         class Derived extends Base {
             @Getter
             // @ts-expect-error Changing member type
-            // eslint-disable-next-line class-methods-use-this
             time(): number {
+                ignore(this);
+
                 return Math.random() * 2;
             }
         }
@@ -75,8 +79,9 @@ test("Changing method type: wasn't mutation", t => {
     t.throws(() => {
         class Base extends StoreModule {
             @Action
-            // eslint-disable-next-line class-methods-use-this
             time(): Promise<void> {
+                ignore(this);
+
                 return Promise.resolve(undefined);
             }
         }
@@ -85,9 +90,8 @@ test("Changing method type: wasn't mutation", t => {
         class Derived extends Base {
             @Mutation
             // @ts-expect-error Changing member type
-            // eslint-disable-next-line class-methods-use-this
             time(): void {
-                console.log("time");
+                ignore(this);
             }
         }
 
@@ -102,17 +106,17 @@ test("Changing method type: wasn't action", t => {
     t.throws(() => {
         class Base extends StoreModule {
             @Mutation
-            // eslint-disable-next-line class-methods-use-this
             time(): void {
-                console.log("time");
+                ignore(this);
             }
         }
 
         @Module
         class Derived extends Base {
             @Action
-            // eslint-disable-next-line class-methods-use-this
             time(): Promise<void> {
+                ignore(this);
+
                 return Promise.resolve(undefined);
             }
         }
@@ -130,9 +134,8 @@ test("Changing method type: wasn't watcher", t => {
             test = 2;
 
             @Mutation
-            // eslint-disable-next-line class-methods-use-this
             time(): void {
-                console.log("time");
+                ignore(this);
             }
         }
 
@@ -140,9 +143,8 @@ test("Changing method type: wasn't watcher", t => {
         class Derived extends Base {
             @Watch("test")
             // @ts-expect-error Changing member type
-            // eslint-disable-next-line class-methods-use-this
-            time(value: number, _old: number): void {
-                console.log(value);
+            time(_value: number, _old: number): void {
+                ignore(this);
             }
         }
 
@@ -159,17 +161,15 @@ test("Changing method type: wasn't local", t => {
             test = 2;
 
             @Mutation
-            // eslint-disable-next-line class-methods-use-this
             time(): void {
-                console.log("time");
+                ignore(this);
             }
         }
 
         @Module
         class Derived extends Base {
-            // eslint-disable-next-line class-methods-use-this
             time(): void {
-                console.log("time");
+                ignore(this);
             }
         }
 
@@ -198,9 +198,8 @@ test.serial("Non function or getter on prototype chain", t => {
             test!: undefined|number;
 
             @Mutation
-            // eslint-disable-next-line class-methods-use-this
             time(): void {
-                console.log("time");
+                ignore(this);
             }
         }
 
@@ -209,9 +208,8 @@ test.serial("Non function or getter on prototype chain", t => {
         @Module
         class Derived extends Base {
             @Mutation
-            // eslint-disable-next-line class-methods-use-this
             time(): void {
-                console.log("time");
+                ignore(this);
             }
         }
 
@@ -226,9 +224,8 @@ test("Not derived from StoreModule", t => {
         class Base {
             // @ts-expect-error Not derived from StoreModule
             @Mutation
-            // eslint-disable-next-line class-methods-use-this
             time(): void {
-                console.log("time");
+                ignore(this);
             }
         }
 
@@ -237,9 +234,8 @@ test("Not derived from StoreModule", t => {
         class Derived extends Base {
             // @ts-expect-error Not derived from StoreModule
             @Mutation
-            // eslint-disable-next-line class-methods-use-this
             time(): void {
-                console.log("time");
+                ignore(this);
             }
         }
 
@@ -256,9 +252,8 @@ test("Module registered twice", t => {
         @Module
         class Derived extends StoreModule {
             @Mutation
-            // eslint-disable-next-line class-methods-use-this
             time(): void {
-                console.log("time");
+                ignore(this);
             }
         }
 
@@ -331,5 +326,22 @@ test("Bad decoration: watch", t => {
     }, {
         instanceOf: TypeError,
         message:    "Only functions may be decorated with @Watch",
+    });
+});
+
+test("No such property", t => {
+    t.throws(() => {
+        @Module
+        class GoodModule extends StoreModule {
+            value = 2;
+        }
+
+        const goodModule = new GoodModule({ store: t.context.store });
+
+        // @ts-expect-error No such property
+        goodModule.count = 2;
+    }, {
+        instanceOf: ReferenceError,
+        message:    "[decoration-vuex]: Cannot add or modify property count of store.",
     });
 });
