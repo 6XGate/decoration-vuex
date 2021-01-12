@@ -8,6 +8,7 @@ on:
     - cron: '40 12 * * 0'
 jobs:
   build:
+    name: Testing build
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -15,5 +16,6 @@ jobs:
         with:
           node-version: '12.x'
           registry-url: 'https://registry.npmjs.org'
-      - run: npm install
-      - run: npm run dev
+      - run: |
+          npm install
+          npm run dev
