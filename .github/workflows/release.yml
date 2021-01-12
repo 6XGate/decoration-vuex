@@ -5,6 +5,7 @@ on:
       - 'v*'
 jobs:
   release:
+    name: Building and releasing
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code

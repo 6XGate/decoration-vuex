@@ -10,13 +10,15 @@ interface WatchDecorator {
 
 export function Watch(path: string, options?: WatchOptions): WatchDecorator {
     return <M extends StoreModule>(_target: M, _key: string, descriptor: Descriptor<M>): Descriptor<M> => {
-        if (typeof descriptor.value === "function") {
-            descriptor.value.__watch__ = {
-                callback: descriptor.value,
-                path,
-                options,
-            };
+        if (typeof descriptor !== "object" || typeof descriptor.value !== "function") {
+            throw new TypeError("Only functions may be decorated with @Watch");
         }
+
+        descriptor.value.__watch__ = {
+            callback: descriptor.value,
+            path,
+            options,
+        };
 
         return descriptor;
     };

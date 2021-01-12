@@ -33,7 +33,8 @@ test.before(t => {
 });
 
 test("create", t => {
-    t.true(t.context.store.state.TestModule instanceof TestModule, "TestModule is not a TestModule");
+    // eslint-disable-next-line @typescript-eslint/dot-notation
+    t.true(t.context.store.state["TestModule"] instanceof TestModule, "TestModule is not a TestModule");
     t.is(getModuleName(t.context.store.state.TestModule), "TestModule");
     t.is(getModuleName(t.context.module), "TestModule");
 });

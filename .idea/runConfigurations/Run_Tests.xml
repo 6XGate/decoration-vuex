@@ -1,5 +1,0 @@
-<component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="Run Tests" type="NodeJSConfigurationType" path-to-js-file="node_modules/.bin/ava" working-dir="$PROJECT_DIR$">
-    <method v="2" />
-  </configuration>
-</component>
