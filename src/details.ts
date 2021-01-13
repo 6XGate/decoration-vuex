@@ -11,25 +11,25 @@ export type LocalSetter<M extends StoreModule> = (this: M, value: unknown) => vo
 export interface LocalAccessor<M extends StoreModule> {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (this: M, ...args: any[]): any;
-    __accessor__?: undefined|true;
+    ["#accessor"]?: undefined|true;
 }
 
 export interface LocalMutation<M extends StoreModule> {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (this: M, ...args: any[]): void;
-    __mutation__?: undefined|true;
+    ["#mutation"]?: undefined|true;
 }
 
 export interface LocalAction<M extends StoreModule> {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (this: M, ...args: any[]): Promise<any>;
-    __action__?: undefined|true;
+    ["#action"]?: undefined|true;
 }
 
 export interface LocalWatcher<M extends StoreModule> {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    (this: M, newValue: any, oldValue: any): void;
-    __watch__?: undefined|WatchDescriptor<M>;
+    (this: M, newValue: any, oldValue?: any): void;
+    ["#watch"]?: undefined|WatchDescriptor<M>;
 }
 
 export type WatchDescriptor<M extends StoreModule> = {

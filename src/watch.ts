@@ -14,11 +14,16 @@ export function Watch(path: string, options?: WatchOptions): WatchDecorator {
             throw new TypeError("Only functions may be decorated with @Watch");
         }
 
-        descriptor.value.__watch__ = {
-            callback: descriptor.value,
-            path,
-            options,
-        };
+        Object.defineProperty(descriptor.value, "#watch", {
+            configurable: false,
+            enumerable:   false,
+            writable:     false,
+            value:        {
+                callback: descriptor.value,
+                options,
+                path,
+            },
+        });
 
         return descriptor;
     };

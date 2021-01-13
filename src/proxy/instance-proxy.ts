@@ -122,7 +122,8 @@ class StoreModuleHandler<M extends StoreModule> implements ProxyHandler<M> {
         case "mutation":
             return (key: keyof M, value: M[typeof key]): void => { this.context.state[key] = value };
         case "action":
-            return (key: keyof M, value: M[typeof key]): void => { this.context.commit?.(key as string, value) };
+            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+            return (key: keyof M, value: M[typeof key]): void => { this.context.commit!(key as string, value) };
         /* istanbul ignore next */
         default:
             return null;
@@ -131,7 +132,8 @@ class StoreModuleHandler<M extends StoreModule> implements ProxyHandler<M> {
 
     private getGetter(_kind: ProxyKind, key: string|keyof M, context: ProxyContext<M>, handler: LocalGetter<M>): MemberProxy<M> {
         if (context.getters) {
-            return () => context.getters?.[`${this.namespace}${key as string}`];
+            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+            return () => context.getters![`${this.namespace}${key as string}`];
         }
 
         return receiver => handler.call(receiver);
@@ -140,7 +142,8 @@ class StoreModuleHandler<M extends StoreModule> implements ProxyHandler<M> {
     private getSetter(kind: ProxyKind, context: ProxyContext<M>): ProxySetter<M> {
         if (context.commit) {
             return (key, value) => {
-                context.commit?.(`${this.namespace}${key as string}`, value);
+                // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+                context.commit!(`${this.namespace}${key as string}`, value);
             };
         }
 
@@ -154,7 +157,8 @@ class StoreModuleHandler<M extends StoreModule> implements ProxyHandler<M> {
     private getAccessor(_kind: ProxyKind, key: string|keyof M, context: ProxyContext<M>, member: LocalAccessor<M>): MemberProxy<M> {
         if (context.getters) {
             return () => (...payload: unknown[]) =>
-                (context.getters?.[`${this.namespace}${key as string}`] as ProxyAccess)(...payload);
+                // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+                (context.getters![`${this.namespace}${key as string}`] as ProxyAccess)(...payload);
         }
 
         return receiver => (...payload: unknown[]) => member.call(receiver, ...payload) as unknown;
@@ -162,7 +166,8 @@ class StoreModuleHandler<M extends StoreModule> implements ProxyHandler<M> {
 
     private getMutation(kind: ProxyKind, key: string|keyof M, context: ProxyContext<M>, member: LocalMutation<M>): MemberProxy<M> {
         if (context.commit) {
-            return () => (...payload: unknown[]) => { context.commit?.(`${this.namespace}${key as string}`, payload) };
+            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+            return () => (...payload: unknown[]) => { context.commit!(`${this.namespace}${key as string}`, payload) };
         }
 
         if (kind === "mutation") {
@@ -174,7 +179,8 @@ class StoreModuleHandler<M extends StoreModule> implements ProxyHandler<M> {
 
     private getAction(_kind: ProxyKind, key: string|keyof M, context: ProxyContext<M>): MemberProxy<M> {
         return context.dispatch ?
-            () => (...payload: unknown[]) => context.dispatch?.(`${this.namespace}${key as string}`, payload) :
+            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+            () => (...payload: unknown[]) => context.dispatch!(`${this.namespace}${key as string}`, payload) :
             () => () => { throw new Error(msg(`Calling action "${key as string}" at inappropriate time.`)) };
     }
 

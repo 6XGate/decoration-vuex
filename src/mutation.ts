@@ -13,7 +13,12 @@ export function Mutation<M extends StoreModule>(_target: M, _key: string, descri
         throw new TypeError("Only functions may be decorated with @Mutation");
     }
 
-    descriptor.value.__mutation__ = true;
+    Object.defineProperty(descriptor.value, "#mutation", {
+        configurable: false,
+        enumerable:   false,
+        writable:     false,
+        value:        true,
+    });
 
     return descriptor;
 }

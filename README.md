@@ -730,6 +730,7 @@ The following rules apply using mapper functions with mapped _Decoration_ based 
 - Inspired by [Vuex Class Modules](https://github.com/championswimmer/vuex-module-decorators).
 - Uses the following development tools:
     - The [TypeScript](https://www.typescriptlang.org/) language
+    - [NYC](https://istanbul.js.org/)
     - [Awa](https://github.com/avajs/ava) testing framework
     - [ESLint](https://eslint.org/) pluggable linter
     - [Husky](https://typicode.github.io/husky/#/) for easy Git hooks.

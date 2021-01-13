@@ -13,7 +13,12 @@ export function Action<M extends StoreModule>(_target: M, _key: string, descript
         throw new TypeError("Only functions may be decorated with @Action");
     }
 
-    descriptor.value.__action__ = true;
+    Object.defineProperty(descriptor.value, "#action", {
+        configurable: false,
+        enumerable:   false,
+        writable:     false,
+        value:        true,
+    });
 
     return descriptor;
 }
