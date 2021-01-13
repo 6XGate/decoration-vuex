@@ -62,7 +62,6 @@ class SetterModule extends StoreModule {
 }
 
 const test = storeTest as TestInterface<{
-    // eslint-disable-next-line @typescript-eslint/naming-convention
     store: Store<unknown>;
     module: SetterModule;
 }>;
@@ -70,7 +69,6 @@ const test = storeTest as TestInterface<{
 test.before(t => {
     Vue.use(Vuex);
 
-    // eslint-disable-next-line @typescript-eslint/naming-convention
     const store = new Store({});
     const module = new SetterModule({ store });
 

@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import type { TestInterface } from "ava";
 import storeTest from "ava";
 import { uniqueId } from "lodash";

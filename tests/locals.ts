@@ -186,7 +186,6 @@ class ClosedLocalModule extends BaseLocalModule {
 class OpenLocalModule extends BaseLocalModule { }
 
 const test = storeTest as TestInterface<{
-    // eslint-disable-next-line @typescript-eslint/naming-convention
     store: Store<unknown>;
     closed: ClosedLocalModule;
     open: OpenLocalModule;
@@ -195,7 +194,6 @@ const test = storeTest as TestInterface<{
 test.before(t => {
     Vue.use(Vuex);
 
-    // eslint-disable-next-line @typescript-eslint/naming-convention
     const store = new Store({});
     const closed = new ClosedLocalModule({ store });
     const open = new OpenLocalModule({ store });
