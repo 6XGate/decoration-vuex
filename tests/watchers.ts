@@ -15,6 +15,7 @@ class WatchingModule extends StoreModule {
     }
 
     @Watch("value")
+    // eslint-disable-next-line class-methods-use-this
     onValueChange(newValue: number): void {
         getLogger().log(newValue);
     }
