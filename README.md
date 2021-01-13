@@ -434,7 +434,7 @@ using local functions.
 
   For example; if you call a local function within a mutation, that function cannot call an action.
 
-### Watchers (experimental)
+### Watchers
 
 Watches provide a more straight forward means to watch any specific state on a module. Simply decorate a function with
 `@Watch` and provide it with the path of the state to watch. You may provide additional options from
@@ -468,8 +468,8 @@ caveats should be considered when using watchers.
 - **Watchers may not be directly called any other member of the class**
 - Even though watchers receive the public interface, **watchers should not call anything on `this`**
 
-Watchers are best used for debugging, logging, and back-end storage features. The following features should be used to
-cover any other use-cases. Setters, mutations, and actions should be used to handle most other use-cases.
+Watchers are best used for debugging, logging, and back-end storage features. Setters, mutations, and actions should be
+used to handle most other use-cases.
 
 ### Inheritance
 
