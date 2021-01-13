@@ -28,7 +28,6 @@ export function MapGetter<M extends StoreModule, K extends keyof M>(module: M, s
     return createDecorator((options, key) => {
         const mappings = mapGetters(getModuleName(module), { [key]: state as string });
 
-        // TODO: Determine test to cover both cases.
         const computed = (options.computed || (options.computed = {}));
         // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         computed[key] = mappings[key]!;

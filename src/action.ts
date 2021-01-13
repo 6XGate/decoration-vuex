@@ -32,7 +32,6 @@ export function MapAction<M extends StoreModule, K extends keyof M>(module: M, a
             [key]: (dispatch, ...args: unknown[]) => dispatch(action as string, args),
         });
 
-        // TODO: Determine test to cover both cases.
         const methods = (options.methods || (options.methods = {}));
         // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         methods[key] = mappings[key]!;

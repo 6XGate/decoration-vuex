@@ -10,8 +10,6 @@ export function MapProperty<M extends StoreModule, K extends keyof M>(module: M,
     return createDecorator((options, key) => {
         const getters = mapGetters(getModuleName(module), { get: state as string });
         const setters = mapMutations(getModuleName(module), { set: state as string });
-
-        // TODO: Determine test to cover both cases.
         const computed = (options.computed || (options.computed = {}));
         computed[key] = {
             get: getters.get,

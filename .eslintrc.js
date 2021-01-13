@@ -453,4 +453,5 @@ module.exports = {
             },
         },
     ],
+    reportUnusedDisableDirectives: true,
 };
