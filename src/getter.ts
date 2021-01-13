@@ -12,7 +12,12 @@ export function Getter<M extends StoreModule>(_target: M, _key: string, descript
         throw new TypeError("Only functions may be decorated with @Getter");
     }
 
-    descriptor.value.__accessor__ = true;
+    Object.defineProperty(descriptor.value, "#accessor", {
+        configurable: false,
+        enumerable:   false,
+        writable:     false,
+        value:        true,
+    });
 
     return descriptor;
 }

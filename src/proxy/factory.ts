@@ -32,8 +32,10 @@ class StoreModuleProxyFactory<M extends typeof StoreModule> {
 
         // Register state, which will be needed for openState modules.
         for (const [ key, value ] of Object.entries(instance)) {
+            /* istanbul ignore next */
             if (value instanceof StoreModule) {
                 // TODO: Sub-module referencing.
+                getLogger().warn("Sub-module referencing not implemented.");
             } else {
                 this.definition.state.add(key as keyof S);
 
@@ -108,7 +110,7 @@ class StoreModuleProxyFactory<M extends typeof StoreModule> {
                     }
 
                     this.definition.members.set(key, "watcher");
-                    this.definition.watchers.set(key, value.__watch__);
+                    this.definition.watchers.set(key, value["#watch"]);
                 } else {
                     if (kind && kind !== "local") {
                         throw new Error(msg(`Previous member ${key} was ${kind} and cannot be changed`));
@@ -148,20 +150,20 @@ class StoreModuleProxyFactory<M extends typeof StoreModule> {
         throw new Error(msg("Module class must be derived from StoreModule"));
     }
 
-    private static isAccessor<T extends StoreModule>(member: LocalMember<T>): member is LocalAccessor<T> & { __accessor__: true } {
-        return (member as LocalAccessor<T>).__accessor__ || false;
+    private static isAccessor<T extends StoreModule>(member: LocalMember<T>): member is LocalAccessor<T> & { ["#accessor"]: true } {
+        return (member as LocalAccessor<T>)["#accessor"] || false;
     }
 
-    private static isMutation<T extends StoreModule>(member: LocalMember<T>): member is LocalMutation<T> & { __mutation__: true } {
-        return (member as LocalMutation<T>).__mutation__ || false;
+    private static isMutation<T extends StoreModule>(member: LocalMember<T>): member is LocalMutation<T> & { ["#mutation"]: true } {
+        return (member as LocalMutation<T>)["#mutation"] || false;
     }
 
-    private static isAction<T extends StoreModule>(member: LocalMember<T>): member is LocalAction<T> & { __action__: true } {
-        return (member as LocalAction<T>).__action__ || false;
+    private static isAction<T extends StoreModule>(member: LocalMember<T>): member is LocalAction<T> & { ["#action"]: true } {
+        return (member as LocalAction<T>)["#action"] || false;
     }
 
-    private static isWatcher<T extends StoreModule>(member: LocalMember<T>): member is LocalWatcher<T> & { __watch__: WatchDescriptor<T> } {
-        return Boolean((member as LocalWatcher<T>).__watch__);
+    private static isWatcher<T extends StoreModule>(member: LocalMember<T>): member is LocalWatcher<T> & { ["#watch"]: WatchDescriptor<T> } {
+        return Boolean((member as LocalWatcher<T>)["#watch"]);
     }
 
     private registerModule(): void {
