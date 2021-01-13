@@ -1,3 +1,5 @@
+export { Logger, getLogger, setLogger } from "./debug/logger";
+export { LoggerEventNames, LoggerEvent, LoggerEventHandler, ObservableLogger } from "./debug/observable-logger";
 export { Module } from "./module";
 export { StateType, MapState } from "./state";
 export { Getter, GetterType, MapGetter } from "./getter";

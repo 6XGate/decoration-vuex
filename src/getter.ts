@@ -8,9 +8,16 @@ import { getModuleName } from "./store-modules";
 type Descriptor<M extends StoreModule> = TypedPropertyDescriptor<LocalAccessor<M>>;
 
 export function Getter<M extends StoreModule>(_target: M, _key: string, descriptor: Descriptor<M>): Descriptor<M> {
-    if (typeof descriptor.value === "function") {
-        descriptor.value.__accessor__ = true;
+    if (typeof descriptor !== "object" || typeof descriptor.value !== "function") {
+        throw new TypeError("Only functions may be decorated with @Getter");
     }
+
+    Object.defineProperty(descriptor.value, "#accessor", {
+        configurable: false,
+        enumerable:   false,
+        writable:     false,
+        value:        true,
+    });
 
     return descriptor;
 }
@@ -21,6 +28,7 @@ export function MapGetter<M extends StoreModule, K extends keyof M>(module: M, s
     return createDecorator((options, key) => {
         const mappings = mapGetters(getModuleName(module), { [key]: state as string });
 
+        // TODO: Determine test to cover both cases.
         const computed = (options.computed || (options.computed = {}));
         // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         computed[key] = mappings[key]!;

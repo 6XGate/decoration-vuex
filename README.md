@@ -3,7 +3,7 @@
 Create type-safe class-based Vuex modules in TypeScript
 
 ![Lint test](https://github.com/6XGate/decoration-vuex/workflows/Lint%20test/badge.svg?branch=develop)
-![Unit tests](https://github.com/6XGate/decoration-vuex/workflows/Unit%20tests/badge.svg?branch=develop)
+![Test coverage](https://github.com/6XGate/decoration-vuex/workflows/Test%20coverage/badge.svg?branch=develop)
 ![Build test](https://github.com/6XGate/decoration-vuex/workflows/Build%20test/badge.svg?branch=develop)
 
 ## License
@@ -17,18 +17,22 @@ _Decoration for Vuex_ is licensed under the [MIT](LICENSE) license.
 - [Vue](https://vuejs.org/)
 - [Vuex](https://vuex.vuejs.org/)
 - [TypeScript](https://www.typescriptlang.org/)
-- Your project must be built with TypeScript by a bundler such as [webpack](https://webpack.js.org/), or used in
-  [Node.js](https://nodejs.org/).
 - Your environment must support ECMAScript
   [Proxy](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Proxy) or provide a polyfill
   of similar functionality.
 
 ### Installation
 
+#### Bundler or ts-node build
+
+If you want to use _Decoration_ with a bundler like [webpack](https://webpack.js.org/) or
+[rollup](https://rollupjs.org/), or with [ts-node](https://github.com/TypeStrong/ts-node);
+
 - Install _Decoration for Vuex_ with your favorite package manager;
     - [npm](https://www.npmjs.com/); `npm install --save-dev decoration-vuex`.
     - [yarn](https://yarnpkg.com/); `yarn add decoration-vuex --dev`
     - [pnpm](https://pnpm.js.org/); `pnpm add -D decoration-vuex`
+
 - Enable experimental decorator support in TypeScript
     - In `tsconfig.json`:
         ```json
@@ -39,6 +43,22 @@ _Decoration for Vuex_ is licensed under the [MIT](LICENSE) license.
         }
         ```
     - On the command-line using `--experimentalDecorators`.
+
+#### Browser ready or CDN build
+
+If you wish to use _Decoration_ in an environment that does not use a bundler or modules; you have two options
+
+- Download the `decoration-vuex.iife.js` file from the latest release and include it in your project.
+- Link to it from UNPKG CDN `https://unpkg.com/decoration-vuex/dist/index.iife.js` or
+  `https://unpkg.com/decoration-vuex@{version}/dist/index.iife.js`. See [UNPKG](https://unpkg.com/) for more versioning
+  options.
+- Link to it from JSDELIVR CDN `https://cdn.jsdelivr.net/npm/decoration-vuex/dist/index.iife.js` or
+  `https://cdn.jsdelivr.net/npm/decoration-vuex@{version}/dist/index.iife.js`. See [JSDELIVR](https://www.jsdelivr.com/)
+  for more versioning options.
+
+##### Browser ready or CDN requirements
+
+You must also include [lodash](https://lodash.com/) to use _Decoration_ in the browser ready or CDN build.
 
 ### Creating your first module
 
@@ -414,7 +434,7 @@ using local functions.
 
   For example; if you call a local function within a mutation, that function cannot call an action.
 
-### Watchers (experimental)
+### Watchers
 
 Watches provide a more straight forward means to watch any specific state on a module. Simply decorate a function with
 `@Watch` and provide it with the path of the state to watch. You may provide additional options from
@@ -448,8 +468,8 @@ caveats should be considered when using watchers.
 - **Watchers may not be directly called any other member of the class**
 - Even though watchers receive the public interface, **watchers should not call anything on `this`**
 
-Watchers are best used for debugging, logging, and back-end storage features. The following features should be used to
-cover any other use-cases. Setters, mutations, and actions should be used to handle most other use-cases.
+Watchers are best used for debugging, logging, and back-end storage features. Setters, mutations, and actions should be
+used to handle most other use-cases.
 
 ### Inheritance
 
@@ -710,6 +730,7 @@ The following rules apply using mapper functions with mapped _Decoration_ based 
 - Inspired by [Vuex Class Modules](https://github.com/championswimmer/vuex-module-decorators).
 - Uses the following development tools:
     - The [TypeScript](https://www.typescriptlang.org/) language
+    - [NYC](https://istanbul.js.org/)
     - [Awa](https://github.com/avajs/ava) testing framework
     - [ESLint](https://eslint.org/) pluggable linter
     - [Husky](https://typicode.github.io/husky/#/) for easy Git hooks.

@@ -19,6 +19,8 @@ import {
     getModuleName,
 } from "../src";
 
+const ignore = (..._ignore: unknown[]): void => undefined;
+
 const makeContext = identity(() => {
     Vue.use(Vuex);
 
@@ -58,6 +60,11 @@ const makeContext = identity(() => {
                 resolve(this.value);
             });
         }
+
+        @Action
+        async incrementOne(): Promise<number> {
+            return this.increment(1);
+        }
     }
 
     const module = new TestModule({ store });
@@ -89,6 +96,9 @@ test.serial("Decorator mappers", async t => {
 
         @MapAction(t.context.module, "increment")
         readonly increment!: ActionType<typeof t.context.module, "increment">;
+
+        @MapAction(t.context.module, "incrementOne")
+        readonly incrementOne!: ActionType<typeof t.context.module, "incrementOne">;
     }
 
     const comp = new Comp({ store: t.context.store });
@@ -110,6 +120,10 @@ test.serial("Decorator mappers", async t => {
     await t.notThrowsAsync(async () => { await comp.increment(2) });
     t.is(comp.value, 9);
     t.is(comp.next, 10);
+
+    await t.notThrowsAsync(async () => { await comp.incrementOne() });
+    t.is(comp.value, 10);
+    t.is(comp.next, 11);
 });
 
 test.serial("Function mappers", async t => {
@@ -124,24 +138,88 @@ test.serial("Function mappers", async t => {
         methods: {
             ...mapMutations(getModuleName(t.context.module), ["inc"]) as
                 { inc(args?: [number?]): void },
-            ...mapActions(getModuleName(t.context.module), ["increment"]) as
-                { increment(args?: [number?]): Promise<void> },
+            ...mapActions(getModuleName(t.context.module), [ "increment", "incrementOne" ]) as
+                { increment(args?: [number?]): Promise<void>; incrementOne(): Promise<void> },
         },
     });
 
     const comp2 = new Comp2({ store: t.context.store });
 
-    t.is(comp2.value, 9);
-    t.is(comp2.next, 10);
-    t.is(comp2.pow(2), 81);
+    t.is(comp2.value, 10);
+    t.is(comp2.next, 11);
+    t.is(comp2.pow(2), 100);
     t.true(typeof comp2.inc === "function");
     t.true(typeof comp2.increment === "function");
 
     t.notThrows(() => { comp2.inc() });
-    t.is(comp2.value, 10);
-    t.is(comp2.next, 11);
+    t.is(comp2.value, 11);
+    t.is(comp2.next, 12);
 
     await t.notThrowsAsync(async () => { await comp2.increment([2]) });
-    t.is(comp2.value, 12);
-    t.is(comp2.next, 13);
+    t.is(comp2.value, 13);
+    t.is(comp2.next, 14);
+
+    await t.notThrowsAsync(async () => { await comp2.incrementOne() });
+    t.is(comp2.value, 14);
+    t.is(comp2.next, 15);
+});
+
+test("First decorator: state", t => {
+    t.notThrows(() => {
+        @Component
+        class Comp extends Vue {
+            @MapState(t.context.module, "value")
+            readonly value!: StateType<typeof t.context.module, "value">;
+        }
+
+        ignore(Comp);
+    });
+});
+
+test("First decorator: property", t => {
+    t.notThrows(() => {
+        @Component
+        class Comp extends Vue {
+            @MapProperty(t.context.module, "x")
+            readonly value!: StateType<typeof t.context.module, "value">;
+        }
+
+        ignore(Comp);
+    });
+});
+
+test("First decorator: getter", t => {
+    t.notThrows(() => {
+        @Component
+        class Comp extends Vue {
+            @MapGetter(t.context.module, "pow")
+            readonly pow!: GetterType<typeof t.context.module, "pow">;
+        }
+
+        ignore(Comp);
+    });
+});
+
+test("First decorator: mutation", t => {
+    t.notThrows(() => {
+        @Component
+        class Comp extends Vue {
+            @MapMutation(t.context.module, "inc")
+            readonly inc!: MutationType<typeof t.context.module, "inc">;
+        }
+
+        ignore(Comp);
+    });
+});
+
+test("First decorator: action", t => {
+    t.notThrows(() => {
+        @Component
+        class Comp extends Vue {
+            @MapAction(t.context.module, "increment")
+            readonly increment!: ActionType<typeof t.context.module, "increment">;
+        }
+
+        ignore(Comp);
+    });
 });
