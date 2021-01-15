@@ -1,6 +1,6 @@
 {
   "name": "decoration-vuex",
-  "version": "1.2.1",
+  "version": "1.2.2",
   "description": "Create type-safe class-based Vuex modules in TypeScript",
   "private": false,
   "main": "dist/index.cjs.js",
@@ -10,7 +10,7 @@
     "lint": "eslint src tests build rollup.config.ts .eslintrc.js",
     "dev": "rollup -c build/rollup.config.cjs --environment TARGET:dev",
     "prod": "rollup -c build/rollup.config.cjs --environment TARGET:prod",
-    "coverage": "nyc npm test",
+    "coverage": "nyc ava",
     "test": "ava",
     "postinstall": "husky install",
     "prepublishOnly": "pinst --disable && npm run prod",
