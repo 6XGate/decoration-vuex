@@ -1,84 +1,34 @@
 import path from "path";
-import typescript from "@rollup/plugin-typescript";
-import { terser } from "rollup-plugin-terser";
-import Roller from "./build/roller";
-import pkg from "./package.json";
+import roller from "./build/roller";
 
-const roller = new Roller([
-    { target: "dev", build: "cjs" },
-    { target: "dev", build: "esm" },
-    { target: "dev", build: "iife" },
-    { target: "prod", build: "cjs" },
-    { target: "prod", build: "esm" },
-    { target: "prod", build: "iife" },
-]);
+export default roller(({ target, outPath, typings }, { typescript, globals, output }) => {
+    if (!typings) {
+        throw new Error("Missing typing output path");
+    }
 
-// ### Common
-roller.globals(() => true, () => ({
-    "lodash":              "_",
-    "vue":                 "Vue",
-    "vue-class-component": "VueClassComponent",
-    "vuex":                "Vuex",
-}));
-roller.input(() => true, () => ({
-    input: "src/index.ts",
-}));
+    // ### Common
+    globals({
+        "lodash":              "_",
+        "vue":                 "Vue",
+        "vue-class-component": "VueClassComponent",
+        "vuex":                "Vuex",
+    });
 
-// ### Production builds
-roller.output(({ target }) => target === "prod", () => ({
-    plugins: [terser()],
-}));
-
-// ### CommonJS configuration ("main")
-roller.input(({ build }) => build === "cjs", () => ({
-    plugins: [
-        typescript({
-            module:        "esnext",
-            target:        "es2015",
-            noEmitOnError: true,
-        }),
-    ],
-}));
-roller.output(({ build }) => build === "cjs", () => ({
-    file:   pkg.main,
-    format: "commonjs",
-}));
-
-// ### Module configuration ("module")
-roller.input(({ build }) => build === "esm", () => ({
-    plugins: [
+    // ### Module configuration ("module")
+    if (target === "esm") {
+        output({
+            dir:            path.dirname(outPath),
+            entryFileNames: path.basename(outPath),
+        });
         typescript({
             module:         "esnext",
             target:         "es2015",
             noEmitOnError:  true,
             declaration:    true,
-            declarationDir: path.dirname(pkg.typings),
-            outDir:         "./dist/",
+            declarationDir: path.dirname(typings),
+            outDir:         path.dirname(outPath),
             rootDir:        "./src/",
             include:        ["./src/**/*.ts"],
-        }),
-    ],
-}));
-roller.output(({ build }) => build === "esm", () => ({
-    dir:            path.dirname(pkg.module),
-    entryFileNames: path.basename(pkg.module),
-    format:         "esm",
-}));
-
-// ### Browser configuration ("browser")
-roller.input(({ build }) => build === "iife", () => ({
-    plugins: [
-        typescript({
-            module:        "esnext",
-            target:        "es2015",
-            noEmitOnError: true,
-        }),
-    ],
-}));
-roller.output(({ build }) => build === "iife", () => ({
-    file:   pkg.browser,
-    name:   "DecorationVuex",
-    format: "iife",
-}));
-
-export default roller.build();
+        });
+    }
+});

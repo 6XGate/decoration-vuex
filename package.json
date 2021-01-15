@@ -1,17 +1,16 @@
 {
   "name": "decoration-vuex",
-  "version": "1.2.1",
+  "version": "1.2.2",
   "description": "Create type-safe class-based Vuex modules in TypeScript",
   "private": false,
   "main": "dist/index.cjs.js",
   "module": "dist/index.esm.js",
-  "browser": "dist/index.iife.js",
   "typings": "dist/types/index.d.ts",
   "scripts": {
     "lint": "eslint src tests build rollup.config.ts .eslintrc.js",
     "dev": "rollup -c build/rollup.config.cjs --environment TARGET:dev",
     "prod": "rollup -c build/rollup.config.cjs --environment TARGET:prod",
-    "coverage": "nyc npm test",
+    "coverage": "nyc ava",
     "test": "ava",
     "postinstall": "husky install",
     "prepublishOnly": "pinst --disable && npm run prod",
@@ -38,6 +37,15 @@
   "files": [
     "dist/**/*"
   ],
+  "roller": {
+    "name": "DecorationVuex",
+    "input": "src/index.ts",
+    "targets": {
+      "cjs": "#main",
+      "esm": "#module",
+      "iife": "dist/index.iife.js"
+    }
+  },
   "ava": {
     "extensions": [
       "ts"
@@ -52,6 +60,11 @@
   },
   "devDependencies": {
     "@istanbuljs/nyc-config-typescript": "^1.0.1",
+    "@rollup/plugin-alias": "^3.1.1",
+    "@rollup/plugin-auto-install": "^2.1.0",
+    "@rollup/plugin-babel": "^5.2.2",
+    "@rollup/plugin-commonjs": "^17.0.0",
+    "@rollup/plugin-node-resolve": "^11.0.1",
     "@rollup/plugin-typescript": "^8.1.0",
     "@types/lodash": "^4.14.167",
     "@types/source-map-support": "^0.5.3",
