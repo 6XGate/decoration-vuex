@@ -1,18 +1,10 @@
 import path from "path";
-import roller from "./build/roller";
+import rolete from "@rolete/rolete";
 
-export default roller(({ target, outPath, typings }, { typescript, globals, output }) => {
+export default rolete(({ target, outPath, typings }, { typescript, output }) => {
     if (!typings) {
         throw new Error("Missing typing output path");
     }
-
-    // ### Common
-    globals({
-        "lodash":              "_",
-        "vue":                 "Vue",
-        "vue-class-component": "VueClassComponent",
-        "vuex":                "Vuex",
-    });
 
     // ### Module configuration ("module")
     if (target === "esm") {

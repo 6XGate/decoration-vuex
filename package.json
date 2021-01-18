@@ -7,9 +7,9 @@
   "module": "dist/index.esm.js",
   "typings": "dist/types/index.d.ts",
   "scripts": {
-    "lint": "eslint src tests build rollup.config.ts .eslintrc.js",
-    "dev": "rollup -c build/rollup.config.cjs --environment TARGET:dev",
-    "prod": "rollup -c build/rollup.config.cjs --environment TARGET:prod",
+    "lint": "eslint src tests rolete.config.js .eslintrc.js",
+    "dev": "rolete -c dev",
+    "prod": "rolete -c prod",
     "coverage": "nyc ava",
     "test": "ava",
     "postinstall": "husky install",
@@ -37,13 +37,19 @@
   "files": [
     "dist/**/*"
   ],
-  "roller": {
+  "rolete": {
     "name": "DecorationVuex",
     "input": "src/index.ts",
     "targets": {
       "cjs": "#main",
       "esm": "#module",
       "iife": "dist/index.iife.js"
+    },
+    "globals": {
+      "lodash": "_",
+      "vue": "Vue",
+      "vue-class-component": "VueClassComponent",
+      "vuex": "Vuex"
     }
   },
   "ava": {
@@ -60,14 +66,9 @@
   },
   "devDependencies": {
     "@istanbuljs/nyc-config-typescript": "^1.0.1",
-    "@rollup/plugin-alias": "^3.1.1",
-    "@rollup/plugin-auto-install": "^2.1.0",
-    "@rollup/plugin-babel": "^5.2.2",
-    "@rollup/plugin-commonjs": "^17.0.0",
-    "@rollup/plugin-node-resolve": "^11.0.1",
+    "@rolete/rolete": "^1.0.2",
     "@rollup/plugin-typescript": "^8.1.0",
     "@types/lodash": "^4.14.167",
-    "@types/source-map-support": "^0.5.3",
     "@typescript-eslint/eslint-plugin": "^4.12.0",
     "@typescript-eslint/parser": "^4.12.0",
     "ava": "^3.15.0",
@@ -80,8 +81,6 @@
     "husky": "^5.0.6",
     "nyc": "^15.1.0",
     "pinst": "^2.1.1",
-    "rollup": "^2.36.1",
-    "rollup-plugin-terser": "^7.0.2",
     "source-map-support": "^0.5.19",
     "ts-node": "^9.1.1",
     "tslib": "^2.1.0",

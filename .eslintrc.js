@@ -223,7 +223,7 @@ module.exports = {
             files: ["*.cjs"],
         },
         {
-            files: [ "./build/**/*.js", "./rollup.*.js" ],
+            files: [ "./build/**/*.js", "./rollup.*.js", "./rolete.*.js" ],
             rules: {
                 "node/no-unsupported-features/es-syntax": [
                     "error", {
