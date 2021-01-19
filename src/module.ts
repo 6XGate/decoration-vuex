@@ -23,8 +23,10 @@ function moduleDecorator(moduleOptions?: ModuleOptions): StoreModuleDecorator {
     };
 }
 
+/* eslint-disable @typescript-eslint/naming-convention */
 export function Module<M extends typeof StoreModule>(constructor: M): M;
 export function Module(options?: ModuleOptions): StoreModuleDecorator;
 export function Module(arg?: ModuleOptions|typeof StoreModule): StoreModuleDecorator|typeof StoreModule {
     return isConstructor(arg) ? moduleDecorator()(arg) : moduleDecorator(arg);
 }
+/* eslint-enable @typescript-eslint/naming-convention */
