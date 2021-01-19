@@ -6,6 +6,7 @@ import type { StoreModule } from "./store-modules";
 
 export type PropertyType<M extends StoreModule, K extends keyof M> = M[K];
 
+// eslint-disable-next-line @typescript-eslint/naming-convention
 export function MapProperty<M extends StoreModule, K extends keyof M>(module: M, state: K): VueDecorator {
     return createDecorator((options, key) => {
         const getters = mapGetters(getModuleName(module), { get: state as string });

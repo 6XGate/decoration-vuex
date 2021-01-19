@@ -1,9 +1,15 @@
 import path from "path";
 import rolete from "@rolete/rolete";
 
-export default rolete(({ target, outPath, typings }, { typescript, output }) => {
-    if (!typings) {
-        throw new Error("Missing typing output path");
+// noinspection JSUnusedGlobalSymbols
+export default rolete(({ packageJson, target, outPath }, { typescript, output }) => {
+    const typesPath = packageJson.types || packageJson.typings;
+    if (!typesPath) {
+        throw new Error("Missing type declaration output path");
+    }
+
+    if (!outPath) {
+        throw new Error(`Missing output path for "${target}"`);
     }
 
     // ### Module configuration ("module")
@@ -17,7 +23,7 @@ export default rolete(({ target, outPath, typings }, { typescript, output }) => 
             target:         "es2015",
             noEmitOnError:  true,
             declaration:    true,
-            declarationDir: path.dirname(typings),
+            declarationDir: path.dirname(typesPath),
             outDir:         path.dirname(outPath),
             rootDir:        "./src/",
             include:        ["./src/**/*.ts"],

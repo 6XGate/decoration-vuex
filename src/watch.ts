@@ -8,6 +8,7 @@ interface WatchDecorator {
     <M extends StoreModule>(target: M, key: string, descriptor: Descriptor<M>): Descriptor<M>;
 }
 
+// eslint-disable-next-line @typescript-eslint/naming-convention
 export function Watch(path: string, options?: WatchOptions): WatchDecorator {
     return <M extends StoreModule>(_target: M, _key: string, descriptor: Descriptor<M>): Descriptor<M> => {
         if (typeof descriptor !== "object" || typeof descriptor.value !== "function") {

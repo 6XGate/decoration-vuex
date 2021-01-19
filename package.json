@@ -7,7 +7,7 @@
   "module": "dist/index.esm.js",
   "typings": "dist/types/index.d.ts",
   "scripts": {
-    "lint": "eslint src tests rolete.config.js .eslintrc.js",
+    "lint": "eslint src tests rolete.config.js",
     "dev": "rolete -c dev",
     "prod": "rolete -c prod",
     "coverage": "nyc ava",
@@ -66,7 +66,7 @@
   },
   "devDependencies": {
     "@istanbuljs/nyc-config-typescript": "^1.0.1",
-    "@rolete/rolete": "^1.0.2",
+    "@rolete/rolete": "^1.1.0",
     "@rollup/plugin-typescript": "^8.1.0",
     "@types/lodash": "^4.14.167",
     "@typescript-eslint/eslint-plugin": "^4.12.0",
