@@ -2,7 +2,8 @@ import type { TestInterface } from "ava";
 import storeTest from "ava";
 import Vue from "vue";
 import Vuex, { Store } from "vuex";
-import { getModuleName, Module, RegisterOptions, StoreModule } from "../src";
+import type { RegisterOptions } from "../src";
+import { getModuleName, Module, StoreModule } from "../src";
 
 @Module
 class TestModule extends StoreModule {
