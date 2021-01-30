@@ -17,26 +17,24 @@ class TestModule extends StoreModule {
 }
 
 const test = storeTest as TestInterface<{
-    // eslint-disable-next-line @typescript-eslint/naming-convention
-    store: Store<{ TestModule: TestModule }>;
+    store: Store<{ [key: string]: TestModule }>;
     module: TestModule;
 }>;
 
 test.before(t => {
     Vue.use(Vuex);
 
-    // eslint-disable-next-line @typescript-eslint/naming-convention
-    const store = new Store<{ TestModule: TestModule }>({});
+    const store = new Store<{ [key: string]: TestModule }>({});
     const module = new TestModule({ store }, 5);
 
     t.context = { store, module };
 });
 
 test("create", t => {
-    // eslint-disable-next-line @typescript-eslint/dot-notation
-    t.true(t.context.store.state["TestModule"] instanceof TestModule, "TestModule is not a TestModule");
-    t.is(getModuleName(t.context.store.state.TestModule), "TestModule");
-    t.is(getModuleName(t.context.module), "TestModule");
+    const name = getModuleName(t.context.module);
+    t.true(t.context.store.state[name] instanceof TestModule, "TestModule is not a TestModule");
+    t.regex(getModuleName(t.context.store.state[name] as TestModule), /TestModule#\d+/u);
+    t.regex(getModuleName(t.context.module), /TestModule#\d+/u);
 });
 
 test("state", t => {

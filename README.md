@@ -584,7 +584,7 @@ The following options can or must be provided when instantiating a module. At mi
 export interface RegisterOptions {
     /** The store to which the module will be registered */
     store: Store<any>;
-    /** Optionally rename the module; otherwise, its class name is used */
+    /** Optionally rename the module; otherwise, its class name and a unique ID are used */
     name?: string;
 }
 ```

@@ -256,8 +256,8 @@ test("Module registered twice", t => {
             }
         }
 
-        ignore(new Derived({ store: t.context.store }));
-        ignore(new Derived({ store: t.context.store }));
+        ignore(new Derived({ store: t.context.store, name: "Derived" }));
+        ignore(new Derived({ store: t.context.store, name: "Derived" }));
     }, {
         instanceOf: Error,
         message:    /^\[decoration-vuex\]: Module /u,
