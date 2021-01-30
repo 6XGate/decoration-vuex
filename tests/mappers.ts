@@ -4,6 +4,7 @@ import { identity } from "lodash";
 import Vue from "vue";
 import Component from "vue-class-component";
 import Vuex, { mapActions, mapGetters, mapMutations, mapState, Store } from "vuex";
+import type { StateType, PropertyType, GetterType, MutationType, ActionType } from "../src";
 import {
     Module,
     StoreModule,
@@ -15,11 +16,6 @@ import {
     MapGetter,
     MapMutation,
     MapAction,
-    StateType,
-    PropertyType,
-    GetterType,
-    MutationType,
-    ActionType,
     getModuleName,
 } from "../src";
 
