@@ -10,7 +10,6 @@ class RenamedModule extends StoreModule {
 }
 
 const test = storeTest as TestInterface<{
-    // eslint-disable-next-line @typescript-eslint/naming-convention
     store: Store<{ myModule: RenamedModule }>;
     module: RenamedModule;
 }>;
@@ -18,7 +17,6 @@ const test = storeTest as TestInterface<{
 test.before(t => {
     Vue.use(Vuex);
 
-    // eslint-disable-next-line @typescript-eslint/naming-convention
     const store = new Store<{ myModule: RenamedModule }>({});
     const module = new RenamedModule({ store, name: "myModule" });
 

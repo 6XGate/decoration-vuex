@@ -1,5 +1,10 @@
 import type { ModuleOptions, RegisterOptions, ResolvedRegisterOptions } from "./options";
 
+let baseId = 1;
+function getNextId(): number {
+    return baseId++;
+}
+
 export class StoreModule {
     static ["@options"]?: ModuleOptions;
     ["#options"]: ResolvedRegisterOptions;
@@ -10,7 +15,7 @@ export class StoreModule {
             configurable: false,
             enumerable:   false,
             writable:     false,
-            value:        { ...options, name: options.name || this.constructor.name },
+            value:        { ...options, name: options.name || `${this.constructor.name}#${getNextId()}` },
         });
     }
 }

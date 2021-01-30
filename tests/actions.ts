@@ -68,7 +68,6 @@ class ClosedStateActionModule extends BaseActionModule { }
 class OpenStateActionModule extends BaseActionModule { }
 
 const test = storeTest as TestInterface<{
-    // eslint-disable-next-line @typescript-eslint/naming-convention
     store: Store<unknown>;
     closed: ClosedStateActionModule;
     open: OpenStateActionModule;
@@ -77,7 +76,6 @@ const test = storeTest as TestInterface<{
 test.before(t => {
     Vue.use(Vuex);
 
-    // eslint-disable-next-line @typescript-eslint/naming-convention
     const store = new Store({});
     const closed = new ClosedStateActionModule({ store });
     const open = new OpenStateActionModule({ store });

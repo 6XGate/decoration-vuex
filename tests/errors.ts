@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import type { TestInterface } from "ava";
 import storeTest from "ava";
 import { uniqueId } from "lodash";
@@ -257,11 +256,26 @@ test("Module registered twice", t => {
             }
         }
 
-        ignore(new Derived({ store: t.context.store }));
-        ignore(new Derived({ store: t.context.store }));
+        ignore(new Derived({ store: t.context.store, name: "Derived" }));
+        ignore(new Derived({ store: t.context.store, name: "Derived" }));
     }, {
         instanceOf: Error,
         message:    /^\[decoration-vuex\]: Module /u,
+    });
+});
+
+test("Module registered twice, without name is okay", t => {
+    t.notThrows(() => {
+        @Module
+        class Derived extends StoreModule {
+            @Mutation
+            time(): void {
+                ignore(this);
+            }
+        }
+
+        ignore(new Derived({ store: t.context.store }));
+        ignore(new Derived({ store: t.context.store }));
     });
 });
 
