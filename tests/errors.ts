@@ -264,6 +264,21 @@ test("Module registered twice", t => {
     });
 });
 
+test("Module registered twice, without name is okay", t => {
+    t.notThrows(() => {
+        @Module
+        class Derived extends StoreModule {
+            @Mutation
+            time(): void {
+                ignore(this);
+            }
+        }
+
+        ignore(new Derived({ store: t.context.store }));
+        ignore(new Derived({ store: t.context.store }));
+    });
+});
+
 test("Bad decoration: getter", t => {
     t.throws(() => {
         @Module
