@@ -1,6 +1,5 @@
 import type { TestInterface } from "ava";
 import storeTest from "ava";
-import { uniqueId } from "lodash";
 import Vue from "vue";
 import Vuex, { Store } from "vuex";
 import { Action, getLogger, Getter, Module, Mutation, ObservableLogger, setLogger, StoreModule, Watch } from "../src";
@@ -38,7 +37,7 @@ test("Changing method type: wasn't getter", t => {
             }
         }
 
-        ignore(new Derived({ store: t.context.store, name: uniqueId("test") }));
+        ignore(new Derived({ store: t.context.store }));
     }, {
         instanceOf: Error,
         message:    "[decoration-vuex]: Previous member time was action and cannot be changed",
@@ -67,7 +66,7 @@ test("Changing method type: wasn't accessor", t => {
             }
         }
 
-        ignore(new Derived({ store: t.context.store, name: uniqueId("test") }));
+        ignore(new Derived({ store: t.context.store }));
     }, {
         instanceOf: Error,
         message:    "[decoration-vuex]: Previous member time was action and cannot be changed",
@@ -94,7 +93,7 @@ test("Changing method type: wasn't mutation", t => {
             }
         }
 
-        ignore(new Derived({ store: t.context.store, name: uniqueId("test") }));
+        ignore(new Derived({ store: t.context.store }));
     }, {
         instanceOf: Error,
         message:    "[decoration-vuex]: Previous member time was action and cannot be changed",
@@ -120,7 +119,7 @@ test("Changing method type: wasn't action", t => {
             }
         }
 
-        ignore(new Derived({ store: t.context.store, name: uniqueId("test") }));
+        ignore(new Derived({ store: t.context.store }));
     }, {
         instanceOf: Error,
         message:    "[decoration-vuex]: Previous member time was mutation and cannot be changed",
@@ -147,7 +146,7 @@ test("Changing method type: wasn't watcher", t => {
             }
         }
 
-        ignore(new Derived({ store: t.context.store, name: uniqueId("test") }));
+        ignore(new Derived({ store: t.context.store }));
     }, {
         instanceOf: Error,
         message:    "[decoration-vuex]: Previous member time was mutation and cannot be changed",
@@ -172,7 +171,7 @@ test("Changing method type: wasn't local", t => {
             }
         }
 
-        ignore(new Derived({ store: t.context.store, name: uniqueId("test") }));
+        ignore(new Derived({ store: t.context.store }));
     }, {
         instanceOf: Error,
         message:    "[decoration-vuex]: Previous member time was mutation and cannot be changed",
@@ -212,7 +211,7 @@ test.serial("Non function or getter on prototype chain", t => {
             }
         }
 
-        ignore(new Derived({ store: t.context.store, name: uniqueId("test") }));
+        ignore(new Derived({ store: t.context.store }));
     } finally {
         setLogger(original);
     }
