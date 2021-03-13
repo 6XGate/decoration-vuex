@@ -32,6 +32,10 @@ If you want to use _Decoration_ with a bundler like [webpack](https://webpack.js
     - [npm](https://www.npmjs.com/); `npm install --save-dev decoration-vuex`.
     - [yarn](https://yarnpkg.com/); `yarn add decoration-vuex --dev`
     - [pnpm](https://pnpm.js.org/); `pnpm add -D decoration-vuex`
+- Install _Vuex_ with your favorite package manager;
+    - [npm](https://www.npmjs.com/); `npm install --save-dev vuex`.
+    - [yarn](https://yarnpkg.com/); `yarn add vuex --dev`
+    - [pnpm](https://pnpm.js.org/); `pnpm add -D vuex`
 
 - Enable experimental decorator support in TypeScript
     - In `tsconfig.json`:
@@ -636,94 +640,13 @@ the listed features.
 
   Has access to the public interface, but should avoid interacting with the module.
 
-## Mappers
+## Version 2 breaking changes
 
-First, it is recommended that _Decoration_ based module members be used directly from Vue components. That being said.
-Two methods can be used to map store members into components. One is the built-in Vuex mapper functions. The other is
-mapper decorations provided by _Decoration_.
-
-### Mapper decorations
-
-Mapper decorator provide a safer, though not fool proof, means of mapping module members into components. They should be
-combined with utility types to ensure you are mapping a member that exists on the module and that its type is properly
-conveyed.
-
-Mapper decorators are primarily for use with Vue Class Components.
-
-```ts
-@Component
-class MyComponent extends Vue {
-    @MapAction(myModule, "fetchData")
-    readonly fetchData!: ActionType<typeof myModule, "fetchData">;
-}
-```
-
-The following mappers exist and utility types exist.
-- `MapState` and `StateType` for fields.
-- `MapGetter` and `GetterType` for property getters and getter functions.
-- `MapProperty` and `PropertyType` for property getter and setter combinations.
-- `MapMutation` and `MutationType` for mutations.
-- `MapAction` and `ActionType` for actions.
-
-### Mapper functions
-
-To map any part of a module using the original `mapState`, `mapGetters`, `mapMutations`, or `mapActions` functions, you
-will need to get the name of the module in the store. _Decoration_ provides the `getModuleName` function for that
-purpose. There is a caveat with using these function. They don't provide much type safety without asserting the results
-of the mapper call.
-
-Mapper function are primarily for use with option defined components.
-
-```ts
-// noinspection JSAnnotator
-export default Vue.extend({
-    methods: {
-        ...mapActions(getModuleName(myModule), ["fetchData"]) as {
-            fetchData([string]): Promise<void>; // Noticed the paramters must be wrapped in an array.
-        },
-        async refresh() {
-            await this.fetchData(["http://www.example.com/data"]);
-        }
-    },
-})
-```
-
-#### Mapper function caveats
-
-The following rules apply using mapper functions with mapped _Decoration_ based modules.
-
-- **Regular mutations and action with parameters**: the arguments must be passed in an array. Example:
-    ```ts
-    @Module
-    class Modules {
-        @Action
-        actionInModule(url: string, verb: string): Promise<string> { /* ... */ }
-        // type ActionWhenMapped = ([string, string]) => Promise<string>;
-
-        @Mutation
-        mutationInModule(data: string): void { /* ... */ }
-        // type MutationWhenMapped = ([string]) => void;
-    }
-    ```
-- **Setter mutations**: the only argument is the value. Example:
-    ```ts
-    @Module
-    class Modules {
-        get x(): number { /* ... */ }
-        set x(value: number) { /* ... */ }
-        // type SetterMutationWhenMapped = (number) => void;
-    }
-    ```
-- **Getter functions** function just as they normally would.
-    ```ts
-    @Module
-    class Modules {
-        @Getter
-        getPow(by: number): number { /* ... */ }
-        // type GetterWhenMapped = (by: number) => number;
-    }
-    ```
-- **Getters and state** function just as they normally would.
+- To support any version of Vuex, it is now a peer dependency and must be installed manually.
+- Mapper support removed.
+- Using decorated module from Vuex `state`, `getters`, `commit`, or `dispatch` is not longer supported. Modules should
+  be used directly.
+- Watchers no longer support array indices.
 
 ## Acknowledgements
 

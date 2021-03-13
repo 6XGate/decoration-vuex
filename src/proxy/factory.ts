@@ -1,4 +1,3 @@
-import { get } from "lodash";
 import type { SetRequired } from "type-fest";
 import type { GetterTree, Module, Store } from "vuex";
 import { getLogger } from "../debug/logger";
@@ -14,7 +13,7 @@ import type {
 } from "../details";
 import { ModuleDefinition } from "../details";
 import { StoreModule } from "../store-modules";
-import { msg } from "../utils";
+import { getByPath, msg } from "../utils";
 import { makeInstanceProxy } from "./instance-proxy";
 
 type CompleteModule<S, R> = SetRequired<Module<S, R>, "namespaced"|"state"|"getters"|"mutations"|"actions">;
@@ -220,7 +219,10 @@ class StoreModuleProxyFactory<M extends typeof StoreModule> {
             module.mutations[key as string] = (state, payload: undefined|unknown[]) => {
                 const mutationProxy = this.getProxy({ state }, "mutation");
 
-                mutation.call(mutationProxy, ...(payload || []));
+                /* istanbul ignore next */ // Safety against undefined, but no way to test in TypeScript.
+                payload = payload || [];
+
+                mutation.apply(mutationProxy, payload);
             };
         }
 
@@ -229,13 +231,16 @@ class StoreModuleProxyFactory<M extends typeof StoreModule> {
             module.actions[key as string] = (context, payload: undefined|unknown[]) => {
                 const actionProxy = this.getProxy({ ...context }, "action");
 
-                return action.call(actionProxy, ...(payload || []));
+                /* istanbul ignore next */ // Safety against undefined, but no way to test in TypeScript.
+                payload = payload || [];
+
+                return action.apply(actionProxy, payload);
             };
         }
 
         // Watchers
         for (const descriptor of this.definition.watchers.values()) {
-            const getter = (state: Record<string, unknown>): unknown => get(state, `${name}.${descriptor.path}`);
+            const getter = (state: Record<string, unknown>): unknown => getByPath(state, `${name}.${descriptor.path}`);
             const watcher = (newValue: unknown, oldValue: unknown): void => {
                 const proxy = this.makePublicProxy();
 
