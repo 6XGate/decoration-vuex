@@ -8,15 +8,38 @@ import { getLogger, Module, Mutation, ObservableLogger, setLogger, StoreModule, 
 @Module
 class WatchingModule extends StoreModule {
     value = 5;
+    deep = { value: 2 };
+
+    // eslint-disable-next-line class-methods-use-this
+    get break(): number {
+        throw new Error("break");
+    }
 
     @Mutation
     inc(by: number): void {
         this.value += by;
     }
 
+    @Mutation
+    incDeep(by: number): void {
+        this.deep.value += by;
+    }
+
     @Watch("value")
     // eslint-disable-next-line class-methods-use-this
     onValueChange(newValue: number): void {
+        getLogger().log(newValue);
+    }
+
+    @Watch("deep.value")
+    // eslint-disable-next-line class-methods-use-this
+    onDeepValueChange(newValue: number): void {
+        getLogger().log(newValue);
+    }
+
+    @Watch("break")
+    // eslint-disable-next-line class-methods-use-this
+    onBreakChange(newValue: number): void {
         getLogger().log(newValue);
     }
 }
@@ -61,4 +84,17 @@ test.serial("Trigger watcher", t => new Promise<void>(resolve => {
 
     t.context.logger.on("log", onLog);
     t.context.module.inc(1);
+}));
+
+test.serial("Trigger deep watcher", t => new Promise<void>(resolve => {
+    const onLog = (log: LoggerEvent): void => {
+        t.is(log.name, "log");
+        t.deepEqual(log.args["...data"], [3]);
+        t.context.logger.off("log", onLog);
+
+        resolve();
+    };
+
+    t.context.logger.on("log", onLog);
+    t.context.module.incDeep(1);
 }));

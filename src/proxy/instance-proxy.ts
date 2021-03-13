@@ -69,10 +69,10 @@ class StoreModuleHandler<M extends StoreModule> implements ProxyHandler<M> {
         }
     }
 
-    get(target: M, key: keyof M, receiver: M): unknown {
+    get(target: M, key: string|symbol, receiver: M): unknown {
         // Short-circuit; state, or local and prototype inherited symbol accessed fields.
         if (typeof key === "symbol" || Object.prototype.hasOwnProperty.call(target, key)) {
-            return target[key];
+            return target[key as keyof M];
         }
 
         // Callables
@@ -82,20 +82,20 @@ class StoreModuleHandler<M extends StoreModule> implements ProxyHandler<M> {
         }
 
         // Any other prototype inherited field.
-        return target[key];
+        return target[key as keyof M];
     }
 
-    set(target: M, key: keyof M, value: M[typeof key], receiver: M): boolean {
+    set(target: M, key: string|symbol, value: unknown, receiver: M): boolean {
         // Short-circuit; state, or local and prototype inherited symbol accessed fields.
         if (Object.prototype.hasOwnProperty.call(target, key)) {
             if (typeof key === "symbol") {
-                target[key] = value as M[typeof key];
+                target[key as keyof M] = value as M[keyof M];
 
                 return true;
             }
 
             if (this.restate) {
-                this.restate(key, value);
+                this.restate(key as keyof M, value as M[keyof M]);
 
                 return true;
             }
@@ -103,9 +103,9 @@ class StoreModuleHandler<M extends StoreModule> implements ProxyHandler<M> {
             throw new Error(msg("Cannot modify the state outside mutations."));
         }
 
-        const handler = this.definition.setters.get(key);
+        const handler = this.definition.setters.get(key as keyof M);
         if (handler) {
-            this.setter(key, value, receiver, handler);
+            this.setter(key as keyof M, value as M[keyof M], receiver, handler);
 
             return true;
         }
