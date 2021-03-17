@@ -60,10 +60,6 @@ If you wish to use _Decoration_ in an environment that does not use a bundler or
   `https://cdn.jsdelivr.net/npm/decoration-vuex@{version}/dist/index.iife.js`. See [JSDELIVR](https://www.jsdelivr.com/)
   for more versioning options.
 
-##### Browser ready or CDN requirements
-
-You must also include [lodash](https://lodash.com/) to use _Decoration_ in the browser ready or CDN build.
-
 ### Creating your first module
 
 With _Decoration_, Vuex modules are written as classes and decorated to indicate what certain members will do.
@@ -695,11 +691,11 @@ the listed features.
 - Inspired by [Vuex Class Modules](https://github.com/championswimmer/vuex-module-decorators).
 - Uses the following development tools:
     - The [TypeScript](https://www.typescriptlang.org/) language
-    - [NYC](https://istanbul.js.org/)
-    - [Awa](https://github.com/avajs/ava) testing framework
+    - [NYC](https://istanbul.js.org/) code coverage framework
+    - [Ava](https://github.com/avajs/ava) testing framework
     - [ESLint](https://eslint.org/) pluggable linter
     - [Husky](https://typicode.github.io/husky/#/) for easy Git hooks.
-    - [Rollup.js](https://rollupjs.org/) package bundler.
+    - [Rollup.js](https://rollupjs.org/) package bundler, wrapped by [Rolete](https://github.com/6XGate/rolete).
 
 ## Roadmap
 
