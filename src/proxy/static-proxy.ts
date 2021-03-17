@@ -1,10 +1,11 @@
+import type { StoreModuleConstructor } from "../module";
 import type { RegisterOptions } from "../options";
 import type { StoreModule } from "../store-modules";
 import { makeProxyFactory } from "./factory";
 
-class StoreModuleStaticHandler<M extends typeof StoreModule> implements ProxyHandler<M> {
-    // eslint-disable-next-line @typescript-eslint/naming-convention,class-methods-use-this
-    construct(Target: M, args: [RegisterOptions]): InstanceType<M> {
+class StoreModuleStaticHandler<M extends StoreModuleConstructor> implements ProxyHandler<M> {
+    // eslint-disable-next-line class-methods-use-this,@typescript-eslint/naming-convention,@typescript-eslint/no-explicit-any
+    construct(Target: M, args: [RegisterOptions, ...any[]]): InstanceType<M> {
         type S = InstanceType<M>;
 
         const instance = new Target(...args) as S;

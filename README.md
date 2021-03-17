@@ -384,6 +384,48 @@ const counter = new Counter({ store });
 counter.getServerValue().then(value => console.log(value));
 ```
 
+### Sub-module reference
+
+Vuex module may reference other modules for convenience and maintainability. This is required for modules to interact
+with each other but can convey a relationship between modules. To define a sub-module in _Decoration_, just assign an
+instance of the module to the member of another.
+
+```ts
+@Module
+class WaitModule extends StoreModule {
+    waiting = false;
+    
+    @Action
+    async while(op: () => Promise<void>): Promise<void> {
+        try {
+            this.waiting = true;
+            await op();
+        } finally {
+            this.waiting = false;
+        }
+    }
+}
+
+@Module
+class ApiModule extends StoreModule {
+    wait = new WaitModule({ store });
+
+    posts = [] as Post[];
+    
+    @Mutation
+    refreshPosts(posts: Post[]): void {
+        this.posts = posts;
+    }
+    
+    @Action
+    async fetchPosts(): Promise<Post[]> {
+        this.refreshPosts(await this.wait.while(fetch("/posts/all")));
+    }
+}
+
+const api = new ApiModule({ store });
+```
+
 ### Local Functions
 
 Vuex modules are meant to provide a source of truth for your application state, but can also do the same for any logic

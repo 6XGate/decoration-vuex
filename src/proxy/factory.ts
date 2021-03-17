@@ -31,10 +31,18 @@ class StoreModuleProxyFactory<M extends typeof StoreModule> {
 
         // Register state, which will be needed for openState modules.
         for (const [ key, value ] of Object.entries(instance)) {
-            /* istanbul ignore next */
             if (value instanceof StoreModule) {
-                // TODO: Sub-module referencing.
-                getLogger().warn("Sub-module referencing not implemented.");
+                this.definition.references.set(key as keyof S, value);
+
+                this.definition.members.set(key as keyof S, "reference");
+
+                // Redefine the sub-module property as an immutable property so it cannot be reactive.
+                Object.defineProperty(instance, key, {
+                    configurable: false,
+                    enumerable:   false,
+                    writable:     false,
+                    value,
+                });
             } else {
                 this.definition.state.add(key as keyof S);
 
