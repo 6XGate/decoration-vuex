@@ -238,7 +238,7 @@ test.serial("Action accessing value", async t => {
 test.serial("Action mutating value in closed state", async t => {
     await t.throwsAsync(
         () => t.context.closed.trySetValue(8),
-        { instanceOf: Error, message: /^\[decoration-vuex\]: Cannot modify the state outside mutations/u },
+        { instanceOf: TypeError, message: /^\[decoration-vuex\]: Cannot modify the state outside mutations/u },
     );
     t.is(await t.context.closed.tryGetValue(), 7 * 2);
 });
@@ -288,7 +288,7 @@ test.serial("Action using action to set X", async t => {
 test.serial("Writing through getter", t => {
     t.throws(
         () => { t.is(t.context.closed.badWriting, NaN) },
-        { instanceOf: Error, message: /^\[decoration-vuex\]: Cannot modify the state outside mutations/u },
+        { instanceOf: TypeError, message: /^\[decoration-vuex\]: Cannot modify the state outside mutations/u },
     );
 });
 
@@ -316,7 +316,7 @@ test.serial("Acting through getter", t => {
 test.serial("Writing through accessor", t => {
     t.throws(
         () => { t.context.closed.failWriting() },
-        { instanceOf: Error, message: /^\[decoration-vuex\]: Cannot modify the state outside mutations/u },
+        { instanceOf: TypeError, message: /^\[decoration-vuex\]: Cannot modify the state outside mutations/u },
     );
 });
 

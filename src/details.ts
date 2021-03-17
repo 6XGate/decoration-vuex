@@ -45,10 +45,11 @@ export type LocalMember<M extends StoreModule> =
 
 export type ProxyAccess = (...args: unknown[]) => unknown;
 
-type MemberKind = "state"|"getter"|"accessor"|"mutation"|"action"|"watcher"|"local";
+type MemberKind = "state"|"reference"|"getter"|"accessor"|"mutation"|"action"|"watcher"|"local";
 
 export class ModuleDefinition<M extends StoreModule> {
     state = new Set<keyof M>();
+    references = new Map<string|keyof M, StoreModule>();
     getters = new Map<string|keyof M, LocalGetter<M>>();
     setters = new Map<string|keyof M, LocalSetter<M>>();
     accessors = new Map<string|keyof M, LocalAccessor<M>>();

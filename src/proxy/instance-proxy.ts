@@ -10,7 +10,7 @@ import type {
 } from "../details";
 import type { RegisterOptions, ResolvedRegisterOptions } from "../options";
 import type { StoreModule } from "../store-modules";
-import { msg } from "../utils";
+import { hasOwnProperty, msg } from "../utils";
 
 type MemberProxy<M extends StoreModule> = (receiver: M) => unknown;
 type ProxySetter<M extends StoreModule> = (key: string|keyof M, value: M[keyof M], receiver: M, handler: LocalSetter<M>) => void;
@@ -71,7 +71,7 @@ class StoreModuleHandler<M extends StoreModule> implements ProxyHandler<M> {
 
     get(target: M, key: string|symbol, receiver: M): unknown {
         // Short-circuit; state, or local and prototype inherited symbol accessed fields.
-        if (typeof key === "symbol" || Object.prototype.hasOwnProperty.call(target, key)) {
+        if (typeof key === "symbol" || hasOwnProperty(target, key)) {
             return target[key as keyof M];
         }
 
@@ -87,11 +87,15 @@ class StoreModuleHandler<M extends StoreModule> implements ProxyHandler<M> {
 
     set(target: M, key: string|symbol, value: unknown, receiver: M): boolean {
         // Short-circuit; state, or local and prototype inherited symbol accessed fields.
-        if (Object.prototype.hasOwnProperty.call(target, key)) {
+        if (hasOwnProperty(target, key)) {
             if (typeof key === "symbol") {
                 target[key as keyof M] = value as M[keyof M];
 
                 return true;
+            }
+
+            if (this.definition.references.get(key as keyof M)) {
+                throw new TypeError(msg(`Sub-module reference ${key} is immutable`));
             }
 
             if (this.restate) {
@@ -100,7 +104,7 @@ class StoreModuleHandler<M extends StoreModule> implements ProxyHandler<M> {
                 return true;
             }
 
-            throw new Error(msg("Cannot modify the state outside mutations."));
+            throw new TypeError(msg("Cannot modify the state outside mutations."));
         }
 
         const handler = this.definition.setters.get(key as keyof M);
@@ -110,7 +114,7 @@ class StoreModuleHandler<M extends StoreModule> implements ProxyHandler<M> {
             return true;
         }
 
-        throw new ReferenceError(msg(`Cannot add or modify property ${key as string} of store.`));
+        throw new TypeError(msg(`Cannot add or modify property ${key as string} of store.`));
     }
 
     private getStateSetter(kind: ProxyKind): null|ProxyRestate<M> {
