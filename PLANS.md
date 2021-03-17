@@ -5,7 +5,6 @@
 - Local function improvements:
     - Allow public use of local functions, or provide a public equivalent.
 - General improvements:
-    - Add support for sub-module references. [ [#14](https://github.com/6XGate/decoration-vuex/issues/14) ]
     - Support, or block, inheriting classes already decorated with `@Module`.
     - Maybe, support open-state access on objects and arrays of a module.
 - Project improvements:

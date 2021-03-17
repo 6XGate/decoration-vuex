@@ -1,3 +1,9 @@
+
+// eslint-disable-next-line @typescript-eslint/unbound-method
+export const hasOwnProperty = Object.prototype.hasOwnProperty.call.bind(Object.prototype.hasOwnProperty) as
+    // eslint-disable-next-line @typescript-eslint/ban-types
+    (target: Object, key: PropertyKey) => boolean;
+
 export function msg(message: string): string {
     return `[decoration-vuex]: ${message}`;
 }

@@ -37,7 +37,7 @@ test("Getting property on closed state", t => {
 test("Setting property on closed state", t => {
     t.throws(
         () => { t.context.closed.value = 7 },
-        { instanceOf: Error, message: /^\[decoration-vuex\]: Cannot modify the state outside mutations/u },
+        { instanceOf: TypeError, message: /^\[decoration-vuex\]: Cannot modify the state outside mutations/u },
     );
 
     t.is(t.context.closed.value, 5);

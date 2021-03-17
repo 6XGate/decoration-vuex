@@ -354,7 +354,7 @@ test("No such property", t => {
         // @ts-expect-error No such property
         goodModule.count = 2;
     }, {
-        instanceOf: ReferenceError,
+        instanceOf: TypeError,
         message:    "[decoration-vuex]: Cannot add or modify property count of store.",
     });
 });
