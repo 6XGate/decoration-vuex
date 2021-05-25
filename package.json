@@ -1,6 +1,6 @@
 {
   "name": "decoration-vuex",
-  "version": "2.1.0",
+  "version": "2.1.1",
   "description": "Create type-safe class-based Vuex modules in TypeScript",
   "private": false,
   "main": "dist/index.cjs.js",
