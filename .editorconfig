@@ -9,8 +9,16 @@ indent_size = 4
 trim_trailing_whitespace = true
 max_line_length = 120
 
-[*.{html,css,less,sass,scss,xml,yml,yaml,json,config,gql,graphql,ejs}]
+[*.{js,jsx,ts,tsx,cjs,mjs}]
+indent_size = 2
+
+[*.{yml,yaml,json}]
 indent_size = 2
 
 [*.md]
 trim_trailing_whitespace = false
+
+[*.sh]
+indent_size = 2
+indent_style = tab
+tab_width = 2
