@@ -1,0 +1,8 @@
+{
+  "recommendations": [
+    "editorconfig.editorconfig",
+    "dbaeumer.vscode-eslint",
+    "gruntfuggly.todo-tree",
+    "redhat.vscode-yaml"
+  ]
+}
