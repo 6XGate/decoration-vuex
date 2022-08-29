@@ -7,15 +7,18 @@
   "module": "dist/index.esm.js",
   "typings": "dist/types/index.d.ts",
   "scripts": {
-    "lint": "eslint src tests",
-    "fix": "eslint --fix src tests",
-    "dev": "echo 'rolete -c dev'",
-    "prod": "echo 'rolete -c prod'",
+    "lint": "eslint .",
+    "fix": "eslint --fix .",
+    "dev": "npm run build:development",
+    "prod": "npm run build:production",
     "coverage": "nyc ava",
     "test": "ava",
     "postinstall": "husky install",
     "prepublishOnly": "pinst --disable && npm run prod",
-    "postpublish": "pinst --enable"
+    "postpublish": "pinst --enable",
+    "build": "npm run build:production",
+    "build:development": "webpack --mode=development",
+    "build:production": "webpack --mode=production --node-env=production"
   },
   "repository": {
     "type": "git",
@@ -67,11 +70,16 @@
     "nyc": "^15.1.0",
     "pinst": "^3.0.0",
     "source-map-support": "^0.5.21",
+    "ts-loader": "^9.3.1",
     "ts-node": "^10.9.1",
     "tslib": "^2.4.0",
     "type-fest": "^2.19.0",
     "typescript": "^4.7.4",
     "vue": "^2.7.10",
-    "vuex": "^3.6.2"
+    "vuex": "^3.6.2",
+    "webpack": "^5.74.0",
+    "webpack-cli": "^4.10.0",
+    "webpack-node-externals": "^3.0.0",
+    "zod": "^3.18.0"
   }
 }

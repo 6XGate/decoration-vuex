@@ -2,8 +2,9 @@
   "compileOnSave": false,
   "compilerOptions": {
     "module": "CommonJS",
-    "target": "es2019",
+    "target": "ES2019",
     "sourceMap": true,
+    "outDir": "dist/types",
 
     "allowJs": false,
     "checkJs": false,

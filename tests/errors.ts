@@ -282,9 +282,9 @@ test('Bad decoration: getter', t => {
   t.throws(() => {
     @Module
     class BadModule extends StoreModule {
-            // @ts-expect-error Bad decoration
-            @Getter
-            value = 2
+      // @ts-expect-error Bad decoration
+      @Getter
+        value = 2
     }
 
     ignore(BadModule)
@@ -298,9 +298,9 @@ test('Bad decoration: mutation', t => {
   t.throws(() => {
     @Module
     class BadModule extends StoreModule {
-            // @ts-expect-error Bad decoration
-            @Mutation
-            value = 2
+      // @ts-expect-error Bad decoration
+      @Mutation
+        value = 2
     }
 
     ignore(BadModule)
@@ -314,9 +314,9 @@ test('Bad decoration: action', t => {
   t.throws(() => {
     @Module
     class BadModule extends StoreModule {
-            // @ts-expect-error Bad decoration
-            @Action
-            value = 2
+      // @ts-expect-error Bad decoration
+      @Action
+        value = 2
     }
 
     ignore(BadModule)
@@ -330,9 +330,9 @@ test('Bad decoration: watch', t => {
   t.throws(() => {
     @Module
     class BadModule extends StoreModule {
-            // @ts-expect-error Bad decoration
-            @Watch('value')
-            value = 2
+      // @ts-expect-error Bad decoration
+      @Watch('value')
+        value = 2
     }
 
     ignore(BadModule)
