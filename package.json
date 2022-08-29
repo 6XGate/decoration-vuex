@@ -38,21 +38,6 @@
   "files": [
     "dist/**/*"
   ],
-  "rolete": {
-    "name": "DecorationVuex",
-    "input": "src/index.ts",
-    "targets": {
-      "cjs": "#main",
-      "esm": "#module",
-      "iife": "dist/index.iife.js"
-    },
-    "globals": {
-      "lodash": "_",
-      "vue": "Vue",
-      "vue-class-component": "VueClassComponent",
-      "vuex": "Vuex"
-    }
-  },
   "ava": {
     "extensions": [
       "ts"
@@ -70,8 +55,6 @@
   },
   "devDependencies": {
     "@istanbuljs/nyc-config-typescript": "^1.0.2",
-    "@rolete/rolete": "^1.1.2",
-    "@rollup/plugin-typescript": "^8.2.1",
     "@types/lodash": "^4.14.184",
     "@typescript-eslint/eslint-plugin": "^5.35.1",
     "@typescript-eslint/parser": "^5.35.1",
