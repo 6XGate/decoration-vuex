@@ -7,7 +7,7 @@ function getNextId (): number {
 
 export class StoreModule {
   static ['@options']?: ModuleOptions;
-  ['#options']: ResolvedRegisterOptions
+  ['#options']!: ResolvedRegisterOptions
 
   constructor (options: RegisterOptions) {
     // Record the options on the object in a way that it cannot be made reactive.
