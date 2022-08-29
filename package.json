@@ -7,10 +7,10 @@
   "module": "dist/index.esm.js",
   "typings": "dist/types/index.d.ts",
   "scripts": {
-    "lint": "eslint src tests rolete.config.js",
-    "fix": "eslint --fix src tests rolete.config.js",
-    "dev": "rolete -c dev",
-    "prod": "rolete -c prod",
+    "lint": "eslint src tests",
+    "fix": "eslint --fix src tests",
+    "dev": "echo 'rolete -c dev'",
+    "prod": "echo 'rolete -c prod'",
     "coverage": "nyc ava",
     "test": "ava",
     "postinstall": "husky install",
@@ -33,7 +33,7 @@
   },
   "homepage": "https://github.com/6XGate/decoration-vuex#readme",
   "engines": {
-    "node": ">=12.9.0"
+    "node": ">=14"
   },
   "files": [
     "dist/**/*"
@@ -69,26 +69,27 @@
     "vuex": "^3"
   },
   "devDependencies": {
-    "@istanbuljs/nyc-config-typescript": "^1.0.1",
+    "@istanbuljs/nyc-config-typescript": "^1.0.2",
     "@rolete/rolete": "^1.1.2",
     "@rollup/plugin-typescript": "^8.2.1",
-    "@types/lodash": "^4.14.170",
-    "@typescript-eslint/eslint-plugin": "^4.25.0",
-    "@typescript-eslint/parser": "^4.25.0",
+    "@types/lodash": "^4.14.184",
+    "@typescript-eslint/eslint-plugin": "^5.35.1",
+    "@typescript-eslint/parser": "^5.35.1",
     "ava": "^3.15.0",
-    "eslint": "^7.27.0",
-    "eslint-plugin-import": "^2.23.3",
+    "eslint": "^8.22.0",
+    "eslint-config-scalecore": "^1.0.10",
+    "eslint-plugin-import": "^2.26.0",
     "eslint-plugin-node": "^11.1.0",
     "esm": "^3.2.25",
-    "husky": "^6.0.0",
+    "husky": "^8.0.1",
     "nyc": "^15.1.0",
-    "pinst": "^2.1.6",
-    "source-map-support": "^0.5.19",
-    "ts-node": "^10.0.0",
-    "tslib": "^2.2.0",
-    "type-fest": "^1.1.3",
-    "typescript": "^4.2.4",
-    "vue": "^2.6.12",
+    "pinst": "^3.0.0",
+    "source-map-support": "^0.5.21",
+    "ts-node": "^10.9.1",
+    "tslib": "^2.4.0",
+    "type-fest": "^2.19.0",
+    "typescript": "^4.7.4",
+    "vue": "^2.7.10",
     "vuex": "^3.6.2"
   }
 }
