@@ -1,20 +1,20 @@
-import type { LocalMutation } from "./details";
-import type { StoreModule } from "./store-modules";
+import type { LocalMutation } from './details'
+import type { StoreModule } from './store-modules'
 
-type Descriptor<M extends StoreModule> = TypedPropertyDescriptor<LocalMutation<M>>;
+type Descriptor<M extends StoreModule> = TypedPropertyDescriptor<LocalMutation<M>>
 
 // eslint-disable-next-line @typescript-eslint/naming-convention
-export function Mutation<M extends StoreModule>(_target: M, _key: string, descriptor: Descriptor<M>): Descriptor<M> {
-    if (typeof descriptor !== "object" || typeof descriptor.value !== "function") {
-        throw new TypeError("Only functions may be decorated with @Mutation");
-    }
+export function Mutation<M extends StoreModule> (_target: M, _key: string, descriptor: Descriptor<M>): Descriptor<M> {
+  if (typeof descriptor !== 'object' || typeof descriptor.value !== 'function') {
+    throw new TypeError('Only functions may be decorated with @Mutation')
+  }
 
-    Object.defineProperty(descriptor.value, "#mutation", {
-        configurable: false,
-        enumerable:   false,
-        writable:     false,
-        value:        true,
-    });
+  Object.defineProperty(descriptor.value, '#mutation', {
+    configurable: false,
+    enumerable: false,
+    writable: false,
+    value: true
+  })
 
-    return descriptor;
+  return descriptor
 }
