@@ -4,18 +4,43 @@
     {
       "type": "npm",
       "script": "build:development",
-      "group": { "isDefault": true, "kind": "build" },
+      "group": {
+        "isDefault": true,
+        "kind": "build"
+      },
       "problemMatcher": [],
-      "label": "npm: build:development",
-      "detail": "webpack --mode=development"
+      "label": "Build (Development)",
+      "detail": "Development build with WebPack"
     },
     {
       "type": "npm",
       "script": "build:production",
       "group": "build",
       "problemMatcher": [],
-      "label": "npm: build:production",
-      "detail": "webpack --mode=production --node-env=production"
+      "label": "Build (Production)",
+      "detail": "Production build with WebPack"
+    },
+    {
+      "type": "npm",
+      "script": "test",
+      "group": "test",
+      "problemMatcher": [],
+      "label": "Unit Test",
+      "detail": "Unit testing with ava"
+    },
+    {
+      "type": "npm",
+      "script": "lint",
+      "problemMatcher": ["$eslint-stylish"],
+      "label": "Find style issues",
+      "detail": "Find issues with ESLint"
+    },
+    {
+      "type": "npm",
+      "script": "fix",
+      "problemMatcher": ["$eslint-stylish"],
+      "label": "Fix style issues",
+      "detail": "Fix issues with ESLint"
     }
   ]
 }

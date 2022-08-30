@@ -26,7 +26,7 @@ class StoreModuleProxyFactory<M extends typeof StoreModule> {
   constructor (constructor: M, instance: InstanceType<M>) {
         type S = InstanceType<M>
 
-        this.definition = new ModuleDefinition<InstanceType<M>>(constructor['@options'] || {})
+        this.definition = new ModuleDefinition<InstanceType<M>>(constructor['@options'] ?? {})
         this.instance = instance
 
         // Register state, which will be needed for openState modules.
@@ -158,15 +158,15 @@ class StoreModuleProxyFactory<M extends typeof StoreModule> {
   }
 
   private static isAccessor<T extends StoreModule>(member: LocalMember<T>): member is LocalAccessor<T> & { ['#accessor']: true } {
-    return (member as LocalAccessor<T>)['#accessor'] || false
+    return (member as LocalAccessor<T>)['#accessor'] ?? false
   }
 
   private static isMutation<T extends StoreModule>(member: LocalMember<T>): member is LocalMutation<T> & { ['#mutation']: true } {
-    return (member as LocalMutation<T>)['#mutation'] || false
+    return (member as LocalMutation<T>)['#mutation'] ?? false
   }
 
   private static isAction<T extends StoreModule>(member: LocalMember<T>): member is LocalAction<T> & { ['#action']: true } {
-    return (member as LocalAction<T>)['#action'] || false
+    return (member as LocalAction<T>)['#action'] ?? false
   }
 
   private static isWatcher<T extends StoreModule>(member: LocalMember<T>): member is LocalWatcher<T> & { ['#watch']: WatchDescriptor<T> } {
@@ -228,7 +228,7 @@ class StoreModuleProxyFactory<M extends typeof StoreModule> {
             const mutationProxy = this.getProxy({ state }, 'mutation')
 
             /* istanbul ignore next */ // Safety against undefined, but no way to test in TypeScript.
-            payload = payload || []
+            payload = payload ?? []
 
             mutation.apply(mutationProxy, payload)
           }
@@ -240,7 +240,7 @@ class StoreModuleProxyFactory<M extends typeof StoreModule> {
             const actionProxy = this.getProxy({ ...context }, 'action')
 
             /* istanbul ignore next */ // Safety against undefined, but no way to test in TypeScript.
-            payload = payload || []
+            payload = payload ?? []
 
             return action.apply(actionProxy, payload)
           }
@@ -268,7 +268,7 @@ class StoreModuleProxyFactory<M extends typeof StoreModule> {
   private getProxy (context: ProxyContext<InstanceType<M>>, kind: ProxyKind): InstanceType<M> {
     const proxy = this.cache.get(kind)
 
-    return proxy || this.makeProxy(context, kind)
+    return proxy ?? this.makeProxy(context, kind)
   }
 
   private makeProxy (context: ProxyContext<InstanceType<M>>, kind: ProxyKind): InstanceType<M> {

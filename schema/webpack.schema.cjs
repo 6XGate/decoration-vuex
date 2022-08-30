@@ -1,8 +1,10 @@
 const { z } = require('zod')
 
+const Mode = z.enum(['production', 'development'])
+
 const ConfigNames = z.enum(['cjs', 'esm', 'iife'])
 
-const ConfigTypes = z.enum(['commonjs', 'module', 'window'])
+const ConfigTypes = z.enum(['assign', 'commonjs', 'global', 'module', 'this', 'var', 'window'])
 
 const Config = z.object({
   chunk: z.string().min(1),
@@ -16,7 +18,7 @@ const AvailableConfigs = z.record(ConfigNames, Config)
 /** @type {z.ZodType<import('webpack').Configuration>} */
 const WebpackConfig = z.instanceof(Object)
 
-const ConfigResolver = z.function(z.tuple([ConfigNames]), WebpackConfig)
+const ConfigResolver = z.function(z.tuple([Mode, z.boolean(), ConfigNames]), WebpackConfig)
 
 module.exports = {
   AvailableConfigs,
@@ -24,5 +26,6 @@ module.exports = {
   ConfigNames,
   ConfigResolver,
   ConfigTypes,
+  Mode,
   WebpackConfig
 }

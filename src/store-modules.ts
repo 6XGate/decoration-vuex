@@ -15,7 +15,7 @@ export class StoreModule {
       configurable: false,
       enumerable: false,
       writable: false,
-      value: { ...options, name: options.name || `${this.constructor.name}#${getNextId()}` }
+      value: { ...options, name: options.name ?? `${this.constructor.name}#${getNextId()}` }
     })
   }
 }

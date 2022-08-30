@@ -17,7 +17,7 @@ export class ObservableLogger implements Logger {
   private readonly base: null | Logger
 
   constructor (base?: Logger) {
-    this.base = base || null
+    this.base = base ?? null
   }
 
   on (name: LoggerEventNames, handler: LoggerEventHandler): void {
@@ -52,14 +52,14 @@ export class ObservableLogger implements Logger {
   }
 
   count (label?: string): void {
-    const value = 1 + (this.counters.get(label || kNoLabel) || 0)
+    const value = 1 + (this.counters.get(label ?? kNoLabel) ?? 0)
 
     this.dispatch({
       name: 'count',
       args: { label, '[[Count]]': value }
     })
 
-    this.counters.set(label || kNoLabel, value)
+    this.counters.set(label ?? kNoLabel, value)
 
     this.base && this.base.count(label)
   }
@@ -74,7 +74,7 @@ export class ObservableLogger implements Logger {
       args: { label, '[[Count]]': 0 }
     })
 
-    this.counters.delete(label || kNoLabel)
+    this.counters.delete(label ?? kNoLabel)
 
     this.base && this.base.countReset(label)
   }
