@@ -1,12 +1,15 @@
-# Decoration for Vuex
-
-Create type-safe class-based Vuex modules in TypeScript
-
 [![License: MIT](https://img.shields.io/github/license/6XGate/decoration-vuex)](https://opensource.org/licenses/MIT)
-[![JavaScript Style Guide](https://img.shields.io/badge/code_style-standard-brightgreen.svg)](https://standardjs.com)
+[![TS-Standard - Typescript Standard Style Guide](https://badgen.net/badge/code%20style/ts-standard/blue?icon=typescript)](https://github.com/standard/ts-standard)
+[![Dependabot badge](https://badgen.net/github/dependabot/6XGate/decoration-vuex?icon=dependabot)](https://dependabot.com/)
 ![Lint test](https://github.com/6XGate/decoration-vuex/workflows/Lint%20test/badge.svg?branch=develop)
 ![Test coverage](https://github.com/6XGate/decoration-vuex/workflows/Test%20coverage/badge.svg?branch=develop)
 ![Build test](https://github.com/6XGate/decoration-vuex/workflows/Build%20test/badge.svg?branch=develop)
+
+-------------------------------------------------------------------------------
+
+# Decoration for Vuex
+
+Create type-safe class-based Vuex modules in TypeScript
 
 ## License
 
