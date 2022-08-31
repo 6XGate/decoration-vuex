@@ -1,360 +1,314 @@
-import type { TestInterface } from "ava";
-import storeTest from "ava";
-import Vue from "vue";
-import Vuex, { Store } from "vuex";
-import { Action, getLogger, Getter, Module, Mutation, ObservableLogger, setLogger, StoreModule, Watch } from "../src";
+import { test, expect } from '@jest/globals'
+import Vue from 'vue'
+import Vuex, { Store } from 'vuex'
+import { Action, getLogger, Getter, Module, Mutation, ObservableLogger, setLogger, StoreModule, Watch } from '../src'
+import { ignore } from './utils/utils'
 
-const ignore = (..._ignore: unknown[]): void => undefined;
+Vue.use(Vuex)
 
-const test = storeTest as TestInterface<{
-    store: Store<unknown>;
-}>;
+const store = new Store({})
 
-test.before(t => {
-    Vue.use(Vuex);
+test("Changing method type: wasn't getter", () => {
+  expect(() => {
+    class Base extends StoreModule {
+      @Action
+      time (): Promise<void> {
+        ignore(this)
 
-    t.context.store = new Store({});
-});
-
-test("Changing method type: wasn't getter", t => {
-    t.throws(() => {
-        class Base extends StoreModule {
-            @Action
-            time(): Promise<void> {
-                ignore(this);
-
-                return Promise.resolve(undefined);
-            }
-        }
-
-        @Module
-        class Derived extends Base {
-            // @ts-expect-error Changing member type
-            get time(): number {
-                ignore(this);
-
-                return Math.random() * 2;
-            }
-        }
-
-        ignore(new Derived({ store: t.context.store }));
-    }, {
-        instanceOf: Error,
-        message:    "[decoration-vuex]: Previous member time was action and cannot be changed",
-    });
-});
-
-test("Changing method type: wasn't accessor", t => {
-    t.throws(() => {
-        class Base extends StoreModule {
-            @Action
-            time(): Promise<void> {
-                ignore(this);
-
-                return Promise.resolve(undefined);
-            }
-        }
-
-        @Module
-        class Derived extends Base {
-            @Getter
-            // @ts-expect-error Changing member type
-            time(): number {
-                ignore(this);
-
-                return Math.random() * 2;
-            }
-        }
-
-        ignore(new Derived({ store: t.context.store }));
-    }, {
-        instanceOf: Error,
-        message:    "[decoration-vuex]: Previous member time was action and cannot be changed",
-    });
-});
-
-test("Changing method type: wasn't mutation", t => {
-    t.throws(() => {
-        class Base extends StoreModule {
-            @Action
-            time(): Promise<void> {
-                ignore(this);
-
-                return Promise.resolve(undefined);
-            }
-        }
-
-        @Module
-        class Derived extends Base {
-            @Mutation
-            // @ts-expect-error Changing member type
-            time(): void {
-                ignore(this);
-            }
-        }
-
-        ignore(new Derived({ store: t.context.store }));
-    }, {
-        instanceOf: Error,
-        message:    "[decoration-vuex]: Previous member time was action and cannot be changed",
-    });
-});
-
-test("Changing method type: wasn't action", t => {
-    t.throws(() => {
-        class Base extends StoreModule {
-            @Mutation
-            time(): void {
-                ignore(this);
-            }
-        }
-
-        @Module
-        class Derived extends Base {
-            @Action
-            time(): Promise<void> {
-                ignore(this);
-
-                return Promise.resolve(undefined);
-            }
-        }
-
-        ignore(new Derived({ store: t.context.store }));
-    }, {
-        instanceOf: Error,
-        message:    "[decoration-vuex]: Previous member time was mutation and cannot be changed",
-    });
-});
-
-test("Changing method type: wasn't watcher", t => {
-    t.throws(() => {
-        class Base extends StoreModule {
-            test = 2;
-
-            @Mutation
-            time(): void {
-                ignore(this);
-            }
-        }
-
-        @Module
-        class Derived extends Base {
-            @Watch("test")
-            // @ts-expect-error Changing member type
-            time(_value: number, _old: number): void {
-                ignore(this);
-            }
-        }
-
-        ignore(new Derived({ store: t.context.store }));
-    }, {
-        instanceOf: Error,
-        message:    "[decoration-vuex]: Previous member time was mutation and cannot be changed",
-    });
-});
-
-test("Changing method type: wasn't local", t => {
-    t.throws(() => {
-        class Base extends StoreModule {
-            test = 2;
-
-            @Mutation
-            time(): void {
-                ignore(this);
-            }
-        }
-
-        @Module
-        class Derived extends Base {
-            time(): void {
-                ignore(this);
-            }
-        }
-
-        ignore(new Derived({ store: t.context.store }));
-    }, {
-        instanceOf: Error,
-        message:    "[decoration-vuex]: Previous member time was mutation and cannot be changed",
-    });
-});
-
-test.serial("Non function or getter on prototype chain", t => {
-    t.plan(3);
-
-    const original = getLogger();
-    try {
-        const logger = new ObservableLogger();
-        logger.on("message", event => {
-            t.is(event.name, "message");
-            t.is(event.args.level, "warn");
-            t.regex((event.args["...data"] as string[]).join(" "), /^\[decoration-vuex\]: Module prototype has property /u);
-        });
-
-        setLogger(logger);
-
-        class Base extends StoreModule {
-            test!: undefined|number;
-
-            @Mutation
-            time(): void {
-                ignore(this);
-            }
-        }
-
-        Base.prototype.test = 2;
-
-        @Module
-        class Derived extends Base {
-            @Mutation
-            time(): void {
-                ignore(this);
-            }
-        }
-
-        ignore(new Derived({ store: t.context.store }));
-    } finally {
-        setLogger(original);
+        return Promise.resolve(undefined)
+      }
     }
-});
 
-test("Not derived from StoreModule", t => {
-    t.throws(() => {
-        class Base {
-            // @ts-expect-error Not derived from StoreModule
-            @Mutation
-            time(): void {
-                ignore(this);
-            }
-        }
+    @Module
+    class Derived extends Base {
+      // @ts-expect-error Changing member type
+      override get time (): number {
+        ignore(this)
 
-        // @ts-expect-error Not derived from StoreModule
-        @Module
-        class Derived extends Base {
-            // @ts-expect-error Not derived from StoreModule
-            @Mutation
-            time(): void {
-                ignore(this);
-            }
-        }
+        return Math.random() * 2
+      }
+    }
 
-        // @ts-expect-error Not derived from StoreModule
-        ignore(new Derived({ store: t.context.store }));
-    }, {
-        instanceOf: Error,
-        message:    "[decoration-vuex]: Module class must be derived from StoreModule",
-    });
-});
+    ignore(new Derived({ store }))
+  }).toThrow('[decoration-vuex]: Previous member time was action and cannot be changed')
+})
 
-test("Module registered twice", t => {
-    t.throws(() => {
-        @Module
-        class Derived extends StoreModule {
-            @Mutation
-            time(): void {
-                ignore(this);
-            }
-        }
+test("Changing method type: wasn't accessor", () => {
+  expect(() => {
+    class Base extends StoreModule {
+      @Action
+      time (): Promise<void> {
+        ignore(this)
 
-        ignore(new Derived({ store: t.context.store, name: "Derived" }));
-        ignore(new Derived({ store: t.context.store, name: "Derived" }));
-    }, {
-        instanceOf: Error,
-        message:    /^\[decoration-vuex\]: Module /u,
-    });
-});
+        return Promise.resolve(undefined)
+      }
+    }
 
-test("Module registered twice, without name is okay", t => {
-    t.notThrows(() => {
-        @Module
-        class Derived extends StoreModule {
-            @Mutation
-            time(): void {
-                ignore(this);
-            }
-        }
+    @Module
+    class Derived extends Base {
+      @Getter
+      // @ts-expect-error Changing member type
+      override time (): number {
+        ignore(this)
 
-        ignore(new Derived({ store: t.context.store }));
-        ignore(new Derived({ store: t.context.store }));
-    });
-});
+        return Math.random() * 2
+      }
+    }
 
-test("Bad decoration: getter", t => {
-    t.throws(() => {
-        @Module
-        class BadModule extends StoreModule {
-            // @ts-expect-error Bad decoration
-            @Getter
-            value = 2;
-        }
+    ignore(new Derived({ store }))
+  }).toThrow('[decoration-vuex]: Previous member time was action and cannot be changed')
+})
 
-        ignore(BadModule);
-    }, {
-        instanceOf: TypeError,
-        message:    "Only functions may be decorated with @Getter",
-    });
-});
+test("Changing method type: wasn't mutation", () => {
+  expect(() => {
+    class Base extends StoreModule {
+      @Action
+      time (): Promise<void> {
+        ignore(this)
 
-test("Bad decoration: mutation", t => {
-    t.throws(() => {
-        @Module
-        class BadModule extends StoreModule {
-            // @ts-expect-error Bad decoration
-            @Mutation
-            value = 2;
-        }
+        return Promise.resolve(undefined)
+      }
+    }
 
-        ignore(BadModule);
-    }, {
-        instanceOf: TypeError,
-        message:    "Only functions may be decorated with @Mutation",
-    });
-});
+    @Module
+    class Derived extends Base {
+      @Mutation
+      // @ts-expect-error Changing member type
+      override time (): void {
+        ignore(this)
+      }
+    }
 
-test("Bad decoration: action", t => {
-    t.throws(() => {
-        @Module
-        class BadModule extends StoreModule {
-            // @ts-expect-error Bad decoration
-            @Action
-            value = 2;
-        }
+    ignore(new Derived({ store }))
+  }).toThrow('[decoration-vuex]: Previous member time was action and cannot be changed')
+})
 
-        ignore(BadModule);
-    }, {
-        instanceOf: TypeError,
-        message:    "Only functions may be decorated with @Action",
-    });
-});
+test("Changing method type: wasn't action", () => {
+  expect(() => {
+    class Base extends StoreModule {
+      @Mutation
+      time (): void {
+        ignore(this)
+      }
+    }
 
-test("Bad decoration: watch", t => {
-    t.throws(() => {
-        @Module
-        class BadModule extends StoreModule {
-            // @ts-expect-error Bad decoration
-            @Watch("value")
-            value = 2;
-        }
+    @Module
+    class Derived extends Base {
+      @Action
+      override time (): Promise<void> {
+        ignore(this)
 
-        ignore(BadModule);
-    }, {
-        instanceOf: TypeError,
-        message:    "Only functions may be decorated with @Watch",
-    });
-});
+        return Promise.resolve(undefined)
+      }
+    }
 
-test("No such property", t => {
-    t.throws(() => {
-        @Module
-        class GoodModule extends StoreModule {
-            value = 2;
-        }
+    ignore(new Derived({ store }))
+  }).toThrow('[decoration-vuex]: Previous member time was mutation and cannot be changed')
+})
 
-        const goodModule = new GoodModule({ store: t.context.store });
+test("Changing method type: wasn't watcher", () => {
+  expect(() => {
+    class Base extends StoreModule {
+      test = 2
 
-        // @ts-expect-error No such property
-        goodModule.count = 2;
-    }, {
-        instanceOf: TypeError,
-        message:    "[decoration-vuex]: Cannot add or modify property count of store.",
-    });
-});
+      @Mutation
+      time (): void {
+        ignore(this)
+      }
+    }
+
+    @Module
+    class Derived extends Base {
+      @Watch('test')
+      // @ts-expect-error Changing member type
+      override time (_value: number, _old: number): void {
+        ignore(this)
+      }
+    }
+
+    ignore(new Derived({ store }))
+  }).toThrow('[decoration-vuex]: Previous member time was mutation and cannot be changed')
+})
+
+test("Changing method type: wasn't local", () => {
+  expect(() => {
+    class Base extends StoreModule {
+      test = 2
+
+      @Mutation
+      time (): void {
+        ignore(this)
+      }
+    }
+
+    @Module
+    class Derived extends Base {
+      override time (): void {
+        ignore(this)
+      }
+    }
+
+    ignore(new Derived({ store }))
+  }).toThrow('[decoration-vuex]: Previous member time was mutation and cannot be changed')
+})
+
+test('Non function or getter on prototype chain', () => {
+  const original = getLogger()
+  try {
+    const logger = new ObservableLogger()
+    logger.on('message', event => {
+      expect(event.name).toBe('message')
+      expect(event.args.level).toBe('warn')
+      expect((event.args['...data'] as string[]).join(' '))
+        .toMatch(/^\[decoration-vuex\]: Module prototype has property /u)
+
+      // cb()
+    })
+
+    setLogger(logger)
+
+    class Base extends StoreModule {
+      test!: undefined | number
+
+      @Mutation
+      time (): void {
+        ignore(this)
+      }
+    }
+
+    Base.prototype.test = 2
+
+    @Module
+    class Derived extends Base {
+      @Mutation
+      override time (): void {
+        ignore(this)
+      }
+    }
+
+    ignore(new Derived({ store }))
+  } finally {
+    setLogger(original)
+
+    expect.assertions(3)
+  }
+})
+
+test('Not derived from StoreModule', () => {
+  expect(() => {
+    class Base {
+      // @ts-expect-error Not derived from StoreModule
+      @Mutation
+      time (): void {
+        ignore(this)
+      }
+    }
+
+    // @ts-expect-error Not derived from StoreModule
+    @Module
+    class Derived extends Base {
+      // @ts-expect-error Not derived from StoreModule
+      @Mutation
+      override time (): void {
+        ignore(this)
+      }
+    }
+
+    // @ts-expect-error Not derived from StoreModule
+    ignore(new Derived({ store }))
+  }).toThrow('[decoration-vuex]: Module class must be derived from StoreModule')
+})
+
+test('Module registered twice', () => {
+  expect(() => {
+    @Module
+    class Derived extends StoreModule {
+      @Mutation
+      time (): void {
+        ignore(this)
+      }
+    }
+
+    ignore(new Derived({ store, name: 'Derived' }))
+    ignore(new Derived({ store, name: 'Derived' }))
+  }).toThrow(/^\[decoration-vuex\]: Module /u)
+})
+
+test('Module registered twice, without name is okay', () => {
+  @Module
+  class Derived extends StoreModule {
+    @Mutation
+    time (): void {
+      ignore(this)
+    }
+  }
+
+  expect(new Derived({ store })).toBeInstanceOf(Derived)
+  expect(new Derived({ store })).toBeInstanceOf(Derived)
+})
+
+test('Bad decoration: getter', () => {
+  expect(() => {
+    @Module
+    class BadModule extends StoreModule {
+      // @ts-expect-error Bad decoration
+      @Getter
+        value = 2
+    }
+
+    ignore(BadModule)
+  }).toThrow('Only functions may be decorated with @Getter')
+})
+
+test('Bad decoration: mutation', () => {
+  expect(() => {
+    @Module
+    class BadModule extends StoreModule {
+      // @ts-expect-error Bad decoration
+      @Mutation
+        value = 2
+    }
+
+    ignore(BadModule)
+  }).toThrow('Only functions may be decorated with @Mutation')
+})
+
+test('Bad decoration: action', () => {
+  expect(() => {
+    @Module
+    class BadModule extends StoreModule {
+      // @ts-expect-error Bad decoration
+      @Action
+        value = 2
+    }
+
+    ignore(BadModule)
+  }).toThrow('Only functions may be decorated with @Action')
+})
+
+test('Bad decoration: watch', () => {
+  expect(() => {
+    @Module
+    class BadModule extends StoreModule {
+      // @ts-expect-error Bad decoration
+      @Watch('value')
+        value = 2
+    }
+
+    ignore(BadModule)
+  }).toThrow('Only functions may be decorated with @Watch')
+})
+
+test('No such property', () => {
+  expect(() => {
+    @Module
+    class GoodModule extends StoreModule {
+      value = 2
+    }
+
+    const goodModule = new GoodModule({ store })
+
+    // @ts-expect-error No such property
+    goodModule.count = 2
+  }).toThrow('[decoration-vuex]: Cannot add or modify property count of store.')
+})

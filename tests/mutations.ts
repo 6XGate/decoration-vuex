@@ -1,132 +1,120 @@
-import type { TestInterface } from "ava";
-import storeTest from "ava";
-import Vue from "vue";
-import Vuex, { Store } from "vuex";
-import { Getter, Mutation, Action, Module, StoreModule } from "../src";
+import { test, expect } from '@jest/globals'
+import Vue from 'vue'
+import Vuex, { Store } from 'vuex'
+import { Getter, Mutation, Action, Module, StoreModule } from '../src'
 
 @Module
 class SetterModule extends StoreModule {
-    value = 5;
+  value = 5
 
-    get x(): number {
-        return this.value;
-    }
+  get x (): number {
+    return this.value
+  }
 
-    set x(value: number) {
-        this.value = value;
-    }
+  set x (value: number) {
+    this.value = value
+  }
 
-    @Getter
-    // eslint-disable-next-line class-methods-use-this
-    getMagic(): number {
-        return 15;
-    }
+  @Getter
 
-    @Getter
-    getX(): number {
-        return this.value;
-    }
+  getMagic (): number {
+    return 15
+  }
 
-    @Mutation
-    setX(value: number): void {
-        this.value = value;
-    }
+  @Getter
+  getX (): number {
+    return this.value
+  }
 
-    @Mutation
-    setWith(x: number, y: number): void {
-        this.value = x * y;
-    }
+  @Mutation
+  setX (value: number): void {
+    this.value = value
+  }
 
-    @Mutation
-    readsState(): void { this.value = this.value * 2 }
+  @Mutation
+  setWith (x: number, y: number): void {
+    this.value = x * y
+  }
 
-    @Mutation
-    callsGetter(): void { this.value = this.x * 2 }
+  @Mutation
+  readsState (): void { this.value = this.value * 2 }
 
-    @Mutation
-    callsAccessor(): void { this.value = this.getMagic() }
+  @Mutation
+  callsGetter (): void { this.value = this.x * 2 }
 
-    @Mutation
-    callsSetter(value: number): void { this.x = value }
+  @Mutation
+  callsAccessor (): void { this.value = this.getMagic() }
 
-    @Mutation
-    callsMutation(value: number): void { this.setX(value) }
+  @Mutation
+  callsSetter (value: number): void { this.x = value }
 
-    @Mutation
-    callsAction(value: number): void { this.tryMake(value).catch(_error => undefined) }
+  @Mutation
+  callsMutation (value: number): void { this.setX(value) }
 
-    @Action
-    tryMake(value: number): Promise<void> {
-        return Promise.resolve(this.setX(value));
-    }
+  @Mutation
+  callsAction (value: number): void { this.tryMake(value).catch(_error => undefined) }
+
+  @Action
+  tryMake (value: number): Promise<void> {
+    return Promise.resolve(this.setX(value))
+  }
 }
 
-const test = storeTest as TestInterface<{
-    store: Store<unknown>;
-    module: SetterModule;
-}>;
+Vue.use(Vuex)
 
-test.before(t => {
-    Vue.use(Vuex);
+const store = new Store({})
+const module = new SetterModule({ store })
 
-    const store = new Store({});
-    const module = new SetterModule({ store });
+test('Mutation with value', () => {
+  expect(module.value).toBe(5)
+  expect(() => { module.setX(8) }).not.toThrow()
 
-    t.context = { store, module };
-});
+  expect(module.value).toBe(module.x)
+  expect(module.x).toBe(8)
+})
 
-test.serial("Mutation with value", t => {
-    t.is(t.context.module.value, 5);
-    t.notThrows(() => { t.context.module.setX(8) });
+test('Mutation with inputs', () => {
+  expect(() => { module.setWith(5, 2) }).not.toThrow()
 
-    t.is(t.context.module.value, t.context.module.x);
-    t.is(t.context.module.x, 8);
-});
+  expect(module.value).toBe(5 * 2)
+})
 
-test.serial("Mutation with inputs", t => {
-    t.notThrows(() => { t.context.module.setWith(5, 2) });
+test('Mutation reads state', () => {
+  const value = module.value
+  expect(() => { module.readsState() }).not.toThrow()
 
-    t.is(t.context.module.value, 5 * 2);
-});
+  expect(module.value).toBe(value * 2)
+})
 
-test.serial("Mutation reads state", t => {
-    const value = t.context.module.value;
-    t.notThrows(() => { t.context.module.readsState() });
+test('Mutation calls getter', () => {
+  const value = module.x
+  expect(() => { module.callsGetter() }).not.toThrow()
 
-    t.is(t.context.module.value, value * 2);
-});
+  expect(module.value).toBe(value * 2)
+})
 
-test.serial("Mutation calls getter", t => {
-    const value = t.context.module.x;
-    t.notThrows(() => { t.context.module.callsGetter() });
+test('Mutation calls accessor', () => {
+  expect(() => { module.callsAccessor() }).not.toThrow()
 
-    t.is(t.context.module.value, value * 2);
-});
+  expect(module.value).toBe(module.getMagic())
+})
 
-test.serial("Mutation calls accessor", t => {
-    t.notThrows(() => { t.context.module.callsAccessor() });
+test('Mutation calls setter', () => {
+  expect(() => { module.callsSetter(6) }).not.toThrow()
 
-    t.is(t.context.module.value, t.context.module.getMagic());
-});
+  expect(module.x).toBe(6)
+})
 
-test.serial("Mutation calls setter", t => {
-    t.notThrows(() => { t.context.module.callsSetter(6) });
+test('Mutation calls mutation', () => {
+  expect(() => { module.callsMutation(7) }).not.toThrow()
 
-    t.is(t.context.module.x, 6);
-});
+  expect(module.x).toBe(7)
+})
 
-test.serial("Mutation calls mutation", t => {
-    t.notThrows(() => { t.context.module.callsMutation(7) });
+test('Mutation calls action', () => {
+  const value = module.x
+  expect(() => { module.callsAction(8) })
+    .toThrow(/^\[decoration-vuex\]: Calling action/u)
 
-    t.is(t.context.module.x, 7);
-});
-
-test.serial("Mutation calls action", t => {
-    const value = t.context.module.x;
-    t.throws(
-        () => { t.context.module.callsAction(8) },
-        { instanceOf: Error, message: /^\[decoration-vuex\]: Calling action/u },
-    );
-
-    t.is(t.context.module.x, value);
-});
+  expect(module.x).toBe(value)
+})

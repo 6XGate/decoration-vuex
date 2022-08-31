@@ -1,120 +1,103 @@
-import type { TestInterface } from "ava";
-import storeTest from "ava";
-import Vue from "vue";
-import Vuex, { Store } from "vuex";
-import { Getter, Mutation, Action, Module, StoreModule } from "../src";
-
-const ignore = (..._ignore: unknown[]): void => undefined;
+import { test, expect } from '@jest/globals'
+import Vue from 'vue'
+import Vuex, { Store } from 'vuex'
+import { Getter, Mutation, Action, Module, StoreModule } from '../src'
+import { ignore } from './utils/utils'
 
 @Module
 class AccessorModule extends StoreModule {
-    value = 5;
+  value = 5
 
-    get x(): number {
-        return this.value;
-    }
+  get x (): number {
+    return this.value
+  }
 
-    set x(value: number) {
-        this.value = value;
-    }
+  set x (value: number) {
+    this.value = value
+  }
 
-    @Getter
-    getX(): number {
-        return this.x;
-    }
+  @Getter
+  getX (): number {
+    return this.x
+  }
 
-    @Getter
-    getPow(by: number): number {
-        return this.x ** by;
-    }
+  @Getter
+  getPow (by: number): number {
+    return this.x ** by
+  }
 
-    @Getter
-    getMany(first: number, second: number): [ number, number, number ] {
-        return [ first, second, this.x ];
-    }
+  @Getter
+  getMany (first: number, second: number): [ number, number, number ] {
+    return [first, second, this.x]
+  }
 
-    @Getter
-    failSetter(): number {
-        this.x += 5;
+  @Getter
+  failSetter (): number {
+    this.x += 5
 
-        return this.x;
-    }
+    return this.x
+  }
 
-    @Getter
-    failMutations(): number {
-        this.inc();
+  @Getter
+  failMutations (): number {
+    this.inc()
 
-        return this.x;
-    }
+    return this.x
+  }
 
-    @Getter
-    failAction(): number {
-        this.tryInc().catch(_error => undefined);
+  @Getter
+  failAction (): number {
+    this.tryInc().catch(_error => undefined)
 
-        return this.x;
-    }
+    return this.x
+  }
 
-    @Mutation
-    inc(): void { this.value++ }
+  @Mutation
+  inc (): void { this.value++ }
 
-    @Action
-    tryInc(): Promise<void> {
-        return Promise.resolve(this.inc());
-    }
+  @Action
+  tryInc (): Promise<void> {
+    return Promise.resolve(this.inc())
+  }
 }
 
-const test = storeTest as TestInterface<{
-    store: Store<unknown>;
-    module: AccessorModule;
-}>;
+Vue.use(Vuex)
 
-test.before(t => {
-    Vue.use(Vuex);
+const store = new Store({})
+const module = new AccessorModule({ store })
 
-    const store = new Store({});
-    const module = new AccessorModule({ store });
+test('Getting by accessor', () => {
+  expect(module.getX()).toBe(5)
+})
 
-    t.context = { store, module };
-});
+test('Getting computed value', () => {
+  expect(module.getPow(3)).toBe(125)
+})
 
-test("Getting by accessor", t => {
-    t.is(t.context.module.getX(), 5);
-});
+test('Accessor with many inputs', () => {
+  expect(module.getMany(1, 2)).toStrictEqual([1, 2, 5])
+})
 
-test("Getting computed value", t => {
-    t.is(t.context.module.getPow(3), 125);
-});
+test('Accessor calling setter', () => {
+  const value = module.value
+  expect(() => { ignore(module.failSetter()) })
+    .toThrow(/^\[decoration-vuex\]: Calling setter for/u)
 
-test("Accessor with many inputs", t => {
-    t.deepEqual(t.context.module.getMany(1, 2), [ 1, 2, 5 ]);
-});
+  expect(module.value).toBe(value)
+})
 
-test("Accessor calling setter", t => {
-    const value = t.context.module.value;
-    t.throws(
-        () => { ignore(t.context.module.failSetter()) },
-        { instanceOf: Error, message: /^\[decoration-vuex\]: Calling setter for/u },
-    );
+test('Accessor calling mutation', () => {
+  const value = module.value
+  expect(() => { ignore(module.failMutations()) })
+    .toThrow(/^\[decoration-vuex\]: Calling mutation/u)
 
-    t.is(t.context.module.value, value);
-});
+  expect(module.value).toBe(value)
+})
 
-test("Accessor calling mutation", t => {
-    const value = t.context.module.value;
-    t.throws(
-        () => { ignore(t.context.module.failMutations()) },
-        { instanceOf: Error, message: /^\[decoration-vuex\]: Calling mutation/u },
-    );
+test('Accessor calling action', () => {
+  const value = module.value
+  expect(() => { ignore(module.failAction()) })
+    .toThrow(/^\[decoration-vuex\]: Calling action/u)
 
-    t.is(t.context.module.value, value);
-});
-
-test("Accessor calling action", t => {
-    const value = t.context.module.value;
-    t.throws(
-        () => { ignore(t.context.module.failAction()) },
-        { instanceOf: Error, message: /^\[decoration-vuex\]: Calling action/u },
-    );
-
-    t.is(t.context.module.value, value);
-});
+  expect(module.value).toBe(value)
+})
