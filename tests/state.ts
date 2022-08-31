@@ -1,8 +1,7 @@
-import test from 'ava'
+import { test, expect } from '@jest/globals'
 import Vue from 'vue'
 import Vuex, { Store } from 'vuex'
 import { Module, StoreModule } from '../src'
-import type { TestInterface } from 'ava'
 
 class ModuleCommon extends StoreModule {
   value = 5
@@ -14,41 +13,29 @@ class ClosedStateModule extends ModuleCommon { }
 @Module({ openState: true })
 class OpenStateModule extends ModuleCommon { }
 
-// const test = storeTest as TestInterface<{
-//   store: Store<unknown>;
-//   closed: ClosedStateModule;
-//   open: OpenStateModule;
-// }>
+Vue.use(Vuex)
 
-test.before(t => {
-  Vue.use(Vuex)
+const store = new Store({})
+const closed = new ClosedStateModule({ store })
+const open = new OpenStateModule({ store })
 
-  const store = new Store({})
-  const closed = new ClosedStateModule({ store })
-  const open = new OpenStateModule({ store })
-
-  t.context = { store, closed, open }
+test('Getting property on closed state', () => {
+  expect(closed.value).toBe(5)
 })
 
-test('Getting property on closed state', t => {
-  t.is(t.context.closed.value, 5)
+test('Setting property on closed state', () => {
+  expect(() => { closed.value = 7 })
+    .toThrow(/^\[decoration-vuex\]: Cannot modify the state outside mutations/u)
+
+  expect(closed.value).toBe(5)
 })
 
-test('Setting property on closed state', t => {
-  t.throws(
-    () => { t.context.closed.value = 7 },
-    { instanceOf: TypeError, message: /^\[decoration-vuex\]: Cannot modify the state outside mutations/u }
-  )
-
-  t.is(t.context.closed.value, 5)
+test('Getting property on open state', () => {
+  expect(closed.value).toBe(5)
 })
 
-test('Getting property on open state', t => {
-  t.is(t.context.closed.value, 5)
-})
+test('Setting property on open state', () => {
+  expect(() => { open.value = 7 }).not.toThrow()
 
-test('Setting property on open state', t => {
-  t.notThrows(() => { t.context.open.value = 7 })
-
-  t.is(t.context.open.value, 7)
+  expect(open.value).toBe(7)
 })

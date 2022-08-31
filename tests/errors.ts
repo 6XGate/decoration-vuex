@@ -152,18 +152,17 @@ test("Changing method type: wasn't local", () => {
   }).toThrow('[decoration-vuex]: Previous member time was mutation and cannot be changed')
 })
 
-test('Non function or getter on prototype chain', cb => {
-  expect.hasAssertions()
-
+test('Non function or getter on prototype chain', () => {
   const original = getLogger()
   try {
     const logger = new ObservableLogger()
     logger.on('message', event => {
       expect(event.name).toBe('message')
       expect(event.args.level).toBe('warn')
-      expect((event.args['...data'] as string[]).join(' ')).toMatch(/^\[decoration-vuex\]: Module prototype has property /u)
+      expect((event.args['...data'] as string[]).join(' '))
+        .toMatch(/^\[decoration-vuex\]: Module prototype has property /u)
 
-      cb()
+      // cb()
     })
 
     setLogger(logger)
@@ -190,6 +189,8 @@ test('Non function or getter on prototype chain', cb => {
     ignore(new Derived({ store }))
   } finally {
     setLogger(original)
+
+    expect.assertions(3)
   }
 })
 

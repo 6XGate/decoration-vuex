@@ -1,9 +1,8 @@
-import test from 'ava'
+import { test, expect } from '@jest/globals'
 import Vue from 'vue'
 import Vuex, { Store } from 'vuex'
 import { getLogger, Module, Mutation, ObservableLogger, setLogger, StoreModule, Watch } from '../src'
 import type { LoggerEvent } from '../src'
-import type { TestInterface } from 'ava'
 
 @Module
 class WatchingModule extends StoreModule {
@@ -43,57 +42,50 @@ class WatchingModule extends StoreModule {
   }
 }
 
-// const test = storeTest as TestInterface<{
-//   store: Store<unknown>;
-//   module: WatchingModule;
-//   logger: ObservableLogger;
-// }>
+Vue.use(Vuex)
 
-test.before(t => {
-  Vue.use(Vuex)
-  const logger = new ObservableLogger()
-  const store = new Store({})
+const logger = new ObservableLogger()
+const store = new Store({})
 
-  setLogger(logger)
+setLogger(logger)
 
-  t.context = {
-    module: new WatchingModule({ store }),
-    logger,
-    store
-  }
+const module = new WatchingModule({ store })
+
+test('Direct watcher call', () => {
+  expect(() => { module.onValueChange(5) })
+    .toThrow(/\[decoration-vuex\]: Watcher /u)
 })
 
-test.serial('Direct watcher call', t => {
-  t.throws(() => {
-    t.context.module.onValueChange(5)
-  }, {
-    instanceOf: Error,
-    message: /\[decoration-vuex\]: Watcher /u
-  })
-})
+test('Trigger watcher', () => new Promise<void>(resolve => {
+  try {
+    const onLog = (log: LoggerEvent): void => {
+      expect(log.name).toBe('log')
+      expect(log.args['...data']).toEqual([6])
+      logger.off('log', onLog)
 
-test.serial('Trigger watcher', t => new Promise<void>(resolve => {
-  const onLog = (log: LoggerEvent): void => {
-    t.is(log.name, 'log')
-    t.deepEqual(log.args['...data'], [6])
-    t.context.logger.off('log', onLog)
+      resolve()
+    }
 
-    resolve()
+    logger.on('log', onLog)
+    module.inc(1)
+  } finally {
+    expect.assertions(2)
   }
-
-  t.context.logger.on('log', onLog)
-  t.context.module.inc(1)
 }))
 
-test.serial('Trigger deep watcher', t => new Promise<void>(resolve => {
-  const onLog = (log: LoggerEvent): void => {
-    t.is(log.name, 'log')
-    t.deepEqual(log.args['...data'], [3])
-    t.context.logger.off('log', onLog)
+test('Trigger deep watcher', () => new Promise<void>(resolve => {
+  try {
+    const onLog = (log: LoggerEvent): void => {
+      expect(log.name).toBe('log')
+      expect(log.args['...data']).toEqual([3])
+      logger.off('log', onLog)
 
-    resolve()
+      resolve()
+    }
+
+    logger.on('log', onLog)
+    module.incDeep(1)
+  } finally {
+    expect.assertions(2)
   }
-
-  t.context.logger.on('log', onLog)
-  t.context.module.incDeep(1)
 }))

@@ -1,8 +1,7 @@
-import test from 'ava'
+import { test, expect } from '@jest/globals'
 import Vue from 'vue'
 import Vuex, { Store } from 'vuex'
 import { Module, StoreModule } from '../src'
-import type { TestInterface } from 'ava'
 
 const kValue = Symbol('value')
 
@@ -11,26 +10,17 @@ class SymbolModule extends StoreModule {
   [kValue] = 5
 }
 
-// const test = storeTest as TestInterface<{
-//   store: Store<unknown>;
-//   module: SymbolModule;
-// }>
+Vue.use(Vuex)
 
-test.before(t => {
-  Vue.use(Vuex)
+const store = new Store({})
+const module = new SymbolModule({ store })
 
-  const store = new Store({})
-  const module = new SymbolModule({ store })
-
-  t.context = { store, module }
+test('Getting symbol property', () => {
+  expect(module[kValue]).toBe(5)
 })
 
-test('Getting symbol property', t => {
-  t.is(t.context.module[kValue], 5)
-})
+test('Setting symbol property', () => {
+  module[kValue] = 7
 
-test('Setting symbol property', t => {
-  t.context.module[kValue] = 7
-
-  t.is(t.context.module[kValue], 7)
+  expect(module[kValue]).toBe(7)
 })

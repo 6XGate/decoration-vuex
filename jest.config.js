@@ -33,7 +33,7 @@ module.exports = {
   // ],
 
   // Indicates which provider should be used to instrument code for coverage
-  coverageProvider: 'babel',
+  // coverageProvider: 'babel',
 
   // A list of reporter names that Jest uses when writing coverage reports
   // coverageReporters: [
@@ -46,10 +46,10 @@ module.exports = {
   // An object that configures minimum threshold enforcement for coverage results
   coverageThreshold: {
     global: {
-      branches: 90,
-      functions: 90,
-      lines: 90,
-      statements: 90
+      branches: 100,
+      functions: 100,
+      lines: 100,
+      statements: 100
     }
   },
 
@@ -164,7 +164,7 @@ module.exports = {
   // The glob patterns Jest uses to detect test files
   testMatch: [
     '<rootDir>/tests/**/*.[jt]s?(x)',
-    '!<rootDir>/tests/utils/**/*'
+    '!**/utils/**'
   ]
 
   // An array of regexp pattern strings that are matched against all test paths, matched tests are skipped

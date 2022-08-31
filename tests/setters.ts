@@ -1,8 +1,7 @@
-import test from 'ava'
+import { test, expect } from '@jest/globals'
 import Vue from 'vue'
 import Vuex, { Store } from 'vuex'
 import { Mutation, Action, Module, StoreModule } from '../src'
-import type { TestInterface } from 'ava'
 
 @Module
 class SetterModule extends StoreModule {
@@ -49,43 +48,32 @@ class SetterModule extends StoreModule {
   }
 }
 
-// const test = storeTest as TestInterface<{
-//   store: Store<unknown>;
-//   module: SetterModule;
-// }>
+Vue.use(Vuex)
 
-test.before(t => {
-  Vue.use(Vuex)
+const store = new Store({})
+const module = new SetterModule({ store })
 
-  const store = new Store({})
-  const module = new SetterModule({ store })
+test('Setting by setter', () => {
+  expect(() => { module.x = 6 }).not.toThrow()
 
-  t.context = { store, module }
+  expect(module.x).toBe(6)
 })
 
-test('Setting by setter', t => {
-  t.notThrows(() => { t.context.module.x = 6 })
+test('Setter calling setter', () => {
+  expect(() => { module.goodSetter = 7 }).not.toThrow()
 
-  t.is(t.context.module.x, 6)
+  expect(module.goodSetter).toBe(7)
 })
 
-test('Setter calling setter', t => {
-  t.notThrows(() => { t.context.module.goodSetter = 7 })
+test('Setter calling mutation', () => {
+  expect(() => { module.goodMutate = 8 }).not.toThrow()
 
-  t.is(t.context.module.goodSetter, 7)
+  expect(module.goodMutate).toBe(8)
 })
 
-test('Setter calling mutation', t => {
-  t.notThrows(() => { t.context.module.goodMutate = 8 })
+test('Setter calling action', () => {
+  expect(() => { module.badAction = 9 })
+    .toThrow(/^\[decoration-vuex\]: Calling action/u)
 
-  t.is(t.context.module.goodMutate, 8)
-})
-
-test('Setter calling action', t => {
-  t.throws(
-    () => { t.context.module.badAction = 9 },
-    { instanceOf: Error, message: /^\[decoration-vuex\]: Calling action/u }
-  )
-
-  t.is(t.context.module.badAction, 8)
+  expect(module.badAction).toBe(8)
 })

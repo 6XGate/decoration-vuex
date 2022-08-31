@@ -210,12 +210,12 @@ test('Accessing value', () => {
 })
 
 test('Mutating value', () => {
-  expect(closed.setValue(7)).toBeUndefined()
+  expect(() => closed.setValue(7)).not.toThrow()
   expect(closed.getValue()).toBe(7)
 })
 
 test('Multiply value via mutator', () => {
-  expect(closed.setValueBy(7, 2)).toBeUndefined()
+  expect(() => closed.setValueBy(7, 2)).not.toThrow()
   expect(closed.getValue()).toBe(7 * 2)
 })
 
@@ -231,7 +231,7 @@ test('Action mutating value in closed state', async () => {
 
 test('Action mutating value in open state', async () => {
   await expect(open.tryGetValue()).resolves.toBe(5)
-  await expect(open.trySetValue(7)).resolves.toBeUndefined()
+  await expect(open.trySetValue(7)).resolves.not.toThrow()
   await expect(open.tryGetValue()).resolves.toBe(7)
 })
 
@@ -240,7 +240,7 @@ test('Getting X', () => {
 })
 
 test('Setting X', () => {
-  expect(closed.setX(8)).toBeUndefined()
+  expect(() => { closed.setX(8) }).not.toThrow()
   expect(closed.getX()).toBe(8)
 })
 
@@ -249,7 +249,7 @@ test('Action getting X', async () => {
 })
 
 test('Action setting X', async () => {
-  await expect(closed.trySetX(9)).resolves.toBeUndefined()
+  await expect(closed.trySetX(9)).resolves.not.toThrow()
   await expect(closed.tryGetX()).resolves.toBe(9)
 })
 
@@ -258,7 +258,7 @@ test('Action accessing X', async () => {
 })
 
 test('Action mutating X', async () => {
-  await expect(closed.tryMutateX(10)).resolves.toBeUndefined()
+  await expect(closed.tryMutateX(10)).resolves.not.toThrow()
   await expect(closed.tryAccessX()).resolves.toBe(10)
 })
 
@@ -267,7 +267,7 @@ test('Action using action to get X', async () => {
 })
 
 test('Action using action to set X', async () => {
-  await expect(closed.actionSetX(11)).resolves.toBeUndefined()
+  await expect(closed.actionSetX(11)).resolves.not.toThrow()
   await expect(closed.actionGetX()).resolves.toBe(11)
 })
 

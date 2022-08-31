@@ -1,8 +1,7 @@
-import test from 'ava'
+import { test, expect } from '@jest/globals'
 import Vue from 'vue'
 import Vuex, { Store } from 'vuex'
 import { Module, ObservableLogger, setLogger, StoreModule } from '../src'
-import type { TestInterface } from 'ava'
 
 @Module
 class TestModule extends StoreModule {
@@ -12,32 +11,22 @@ class TestModule extends StoreModule {
 
 TestModule.prototype.value = 2
 
-// const test = storeTest as TestInterface<{
-//   // eslint-disable-next-line @typescript-eslint/naming-convention
-//   store: Store<{ TestModule: TestModule }>;
-//   module: TestModule;
-// }>
+Vue.use(Vuex)
 
-test.before(t => {
-  Vue.use(Vuex)
+setLogger(new ObservableLogger())
 
-  setLogger(new ObservableLogger())
+// eslint-disable-next-line @typescript-eslint/naming-convention
+const store = new Store<{ TestModule: TestModule }>({})
+const module = new TestModule({ store })
 
-  // eslint-disable-next-line @typescript-eslint/naming-convention
-  const store = new Store<{ TestModule: TestModule }>({})
-  const module = new TestModule({ store })
-
-  t.context = { store, module }
-})
-
-test('Not trapped', t => {
-  t.false(Reflect.isExtensible(t.context.module))
-  t.throws(() => { Object.defineProperty(t.context.module, '__test', { value: 2 }) })
+test('Not trapped', () => {
+  expect(Reflect.isExtensible(module)).toBe(false)
+  expect(() => { Object.defineProperty(module, '__test', { value: 2 }) }).toThrow()
   // @ts-expect-error Testing that delete fails
-  t.throws(() => { delete t.context.module.tryDelete })
-  t.throws(() => { Object.setPrototypeOf(t.context.module, null) })
+  expect(() => { delete module.tryDelete }).toThrow()
+  expect(() => { Object.setPrototypeOf(module, null) }).toThrow()
 })
 
-test('Passes traps', t => {
-  t.is(t.context.module.value, 2)
+test('Passes traps', () => {
+  expect(module.value).toBe(2)
 })
