@@ -1,44 +1,32 @@
-import type { TestInterface } from "ava";
-import storeTest from "ava";
-import Vue from "vue";
-import Vuex, { Store } from "vuex";
-import { Module, ObservableLogger, setLogger, StoreModule } from "../src";
+import { test, expect } from '@jest/globals'
+import Vue from 'vue'
+import Vuex, { Store } from 'vuex'
+import { Module, ObservableLogger, setLogger, StoreModule } from '../src'
 
 @Module
 class TestModule extends StoreModule {
-    value!: number;
-    tryDelete = 2;
+  value!: number
+  tryDelete = 2
 }
 
-TestModule.prototype.value = 2;
+TestModule.prototype.value = 2
 
-const test = storeTest as TestInterface<{
-    // eslint-disable-next-line @typescript-eslint/naming-convention
-    store: Store<{ TestModule: TestModule }>;
-    module: TestModule;
-}>;
+Vue.use(Vuex)
 
-test.before(t => {
-    Vue.use(Vuex);
+setLogger(new ObservableLogger())
 
-    setLogger(new ObservableLogger());
+// eslint-disable-next-line @typescript-eslint/naming-convention
+const store = new Store<{ TestModule: TestModule }>({})
+const module = new TestModule({ store })
 
-    // eslint-disable-next-line @typescript-eslint/naming-convention
-    const store = new Store<{ TestModule: TestModule }>({});
-    const module = new TestModule({ store });
+test('Not trapped', () => {
+  expect(Reflect.isExtensible(module)).toBe(false)
+  expect(() => { Object.defineProperty(module, '__test', { value: 2 }) }).toThrow()
+  // @ts-expect-error Testing that delete fails
+  expect(() => { delete module.tryDelete }).toThrow()
+  expect(() => { Object.setPrototypeOf(module, null) }).toThrow()
+})
 
-
-    t.context = { store, module };
-});
-
-test("Not trapped", t => {
-    t.false(Reflect.isExtensible(t.context.module));
-    t.throws(() => { Object.defineProperty(t.context.module, "__test", { value: 2 }) });
-    // @ts-expect-error Testing that delete fails
-    t.throws(() => { delete t.context.module.tryDelete });
-    t.throws(() => { Object.setPrototypeOf(t.context.module, null) });
-});
-
-test("Passes traps", t => {
-    t.is(t.context.module.value, 2);
-});
+test('Passes traps', () => {
+  expect(module.value).toBe(2)
+})

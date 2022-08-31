@@ -1,256 +1,244 @@
-import loggerTest from "ava";
-import type { TestInterface } from "ava";
-import type { Logger, LoggerEvent, LoggerEventHandler } from "../src";
-import { ObservableLogger } from "../src";
+import { test, expect } from '@jest/globals'
+import { ObservableLogger } from '../src'
+import type { Logger, LoggerEvent, LoggerEventHandler } from '../src'
 
-const test = loggerTest as TestInterface<{
-    logger: ObservableLogger;
-    inner: ObservableLogger;
-}>;
+const inner = new ObservableLogger()
+const logger = new ObservableLogger(inner)
 
-test.before(t => {
-    const inner = new ObservableLogger();
+test('Logger#assert', () => {
+  expect.assertions(8)
 
-    t.context = {
-        logger: new ObservableLogger(inner),
-        inner,
-    };
-});
+  const onTruthyAssert = (event: LoggerEvent): void => {
+    expect(event.name).toBe('assert')
+    expect(event.args.condition).toBeTruthy()
+    expect((event.args['...data'] as unknown[]).join(' ')).toBe("won't assert")
+  }
 
-test("Logger#assert", t => {
-    t.plan(8);
+  logger.on('assert', onTruthyAssert)
+  expect(() => logger.assert(true, "won't assert")).not.toThrow()
+  logger.off('assert', onTruthyAssert)
 
-    const onTruthyAssert = (event: LoggerEvent): void => {
-        t.is(event.name, "assert");
-        t.truthy(event.args.condition);
-        t.is((event.args["...data"] as unknown[]).join(" "), "won't assert");
-    };
+  const onFalsyAssert = (event: LoggerEvent): void => {
+    expect(event.name).toBe('assert')
+    expect(event.args.condition).toBeFalsy()
+    expect((event.args['...data'] as unknown[]).join(' ')).toBe('will assert')
+  }
 
-    t.context.logger.on("assert", onTruthyAssert);
-    t.notThrows(() => t.context.logger.assert(true, "won't assert"));
-    t.context.logger.off("assert", onTruthyAssert);
+  logger.on('assert', onFalsyAssert)
+  expect(() => logger.assert(false, 'will assert')).toThrow()
+  logger.off('assert', onFalsyAssert)
+})
 
-    const onFalsyAssert = (event: LoggerEvent): void => {
-        t.is(event.name, "assert");
-        t.falsy(event.args.condition);
-        t.is((event.args["...data"] as unknown[]).join(" "), "will assert");
-    };
+test('Logger#count', () => {
+  expect.assertions(14)
 
-    t.context.logger.on("assert", onFalsyAssert);
-    t.throws(() => t.context.logger.assert(false, "will assert"));
-    t.context.logger.off("assert", onFalsyAssert);
-});
+  const onFirstInvoke = (event: LoggerEvent): void => {
+    expect(event.name).toBe('count')
+    expect(event.args.label).toBe(undefined)
+    expect(event.args['[[Count]]']).toBe(1)
+  }
 
-test("Logger#count", t => {
-    t.plan(14);
+  logger.on('count', onFirstInvoke)
+  logger.count()
+  logger.off('count', onFirstInvoke)
 
-    const onFirstInvoke = (event: LoggerEvent): void => {
-        t.is(event.name, "count");
-        t.is(event.args.label, undefined);
-        t.is(event.args["[[Count]]"], 1);
-    };
+  const onSecondInvoke = (event: LoggerEvent): void => {
+    expect(event.name).toBe('count')
+    expect(event.args.label).toBe(undefined)
+    expect(event.args['[[Count]]']).toBe(2)
+  }
 
-    t.context.logger.on("count", onFirstInvoke);
-    t.context.logger.count();
-    t.context.logger.off("count", onFirstInvoke);
+  logger.on('count', onSecondInvoke)
+  logger.count()
+  logger.off('count', onSecondInvoke)
 
-    const onSecondInvoke = (event: LoggerEvent): void => {
-        t.is(event.name, "count");
-        t.is(event.args.label, undefined);
-        t.is(event.args["[[Count]]"], 2);
-    };
+  const onResetInvoke = (event: LoggerEvent): void => {
+    expect(event.name).toBe('countReset')
+    expect(event.args.label).toBe(undefined)
+  }
+  const onResetAltInvoke = (event: LoggerEvent): void => {
+    expect(event.name).toBe('count')
+    expect(event.args.label).toBe(undefined)
+    expect(event.args['[[Count]]']).toBe(0)
+  }
 
-    t.context.logger.on("count", onSecondInvoke);
-    t.context.logger.count();
-    t.context.logger.off("count", onSecondInvoke);
+  logger.on('count', onResetAltInvoke)
+  logger.on('countReset', onResetInvoke)
+  logger.countReset()
+  logger.off('countReset', onResetInvoke)
+  logger.off('count', onResetAltInvoke)
 
-    const onResetInvoke = (event: LoggerEvent): void => {
-        t.is(event.name, "countReset");
-        t.is(event.args.label, undefined);
-    };
-    const onResetAltInvoke = (event: LoggerEvent): void => {
-        t.is(event.name, "count");
-        t.is(event.args.label, undefined);
-        t.is(event.args["[[Count]]"], 0);
-    };
+  const onPostResetInvoke = (event: LoggerEvent): void => {
+    expect(event.name).toBe('count')
+    expect(event.args.label).toBe(undefined)
+    expect(event.args['[[Count]]']).toBe(1)
+  }
 
-    t.context.logger.on("count", onResetAltInvoke);
-    t.context.logger.on("countReset", onResetInvoke);
-    t.context.logger.countReset();
-    t.context.logger.off("countReset", onResetInvoke);
-    t.context.logger.off("count", onResetAltInvoke);
+  logger.on('count', onPostResetInvoke)
+  logger.count()
+  logger.off('count', onPostResetInvoke)
+})
 
-    const onPostResetInvoke = (event: LoggerEvent): void => {
-        t.is(event.name, "count");
-        t.is(event.args.label, undefined);
-        t.is(event.args["[[Count]]"], 1);
-    };
+test('Logger#count(label)', () => {
+  expect.assertions(14)
 
-    t.context.logger.on("count", onPostResetInvoke);
-    t.context.logger.count();
-    t.context.logger.off("count", onPostResetInvoke);
-});
+  const onFirstInvoke = (event: LoggerEvent): void => {
+    expect(event.name).toBe('count')
+    expect(event.args.label).toBe('test')
+    expect(event.args['[[Count]]']).toBe(1)
+  }
 
-test("Logger#count(label)", t => {
-    t.plan(14);
+  logger.on('count', onFirstInvoke)
+  logger.count('test')
+  logger.off('count', onFirstInvoke)
 
-    const onFirstInvoke = (event: LoggerEvent): void => {
-        t.is(event.name, "count");
-        t.is(event.args.label, "test");
-        t.is(event.args["[[Count]]"], 1);
-    };
+  const onSecondInvoke = (event: LoggerEvent): void => {
+    expect(event.name).toBe('count')
+    expect(event.args.label).toBe('test')
+    expect(event.args['[[Count]]']).toBe(2)
+  }
 
-    t.context.logger.on("count", onFirstInvoke);
-    t.context.logger.count("test");
-    t.context.logger.off("count", onFirstInvoke);
+  logger.on('count', onSecondInvoke)
+  logger.count('test')
+  logger.off('count', onSecondInvoke)
 
-    const onSecondInvoke = (event: LoggerEvent): void => {
-        t.is(event.name, "count");
-        t.is(event.args.label, "test");
-        t.is(event.args["[[Count]]"], 2);
-    };
+  const onResetInvoke = (event: LoggerEvent): void => {
+    expect(event.name).toBe('countReset')
+    expect(event.args.label).toBe('test')
+  }
+  const onResetAltInvoke = (event: LoggerEvent): void => {
+    expect(event.name).toBe('count')
+    expect(event.args.label).toBe('test')
+    expect(event.args['[[Count]]']).toBe(0)
+  }
 
-    t.context.logger.on("count", onSecondInvoke);
-    t.context.logger.count("test");
-    t.context.logger.off("count", onSecondInvoke);
+  logger.on('count', onResetAltInvoke)
+  logger.on('countReset', onResetInvoke)
+  logger.countReset('test')
+  logger.off('countReset', onResetInvoke)
+  logger.off('count', onResetAltInvoke)
 
-    const onResetInvoke = (event: LoggerEvent): void => {
-        t.is(event.name, "countReset");
-        t.is(event.args.label, "test");
-    };
-    const onResetAltInvoke = (event: LoggerEvent): void => {
-        t.is(event.name, "count");
-        t.is(event.args.label, "test");
-        t.is(event.args["[[Count]]"], 0);
-    };
+  const onPostResetInvoke = (event: LoggerEvent): void => {
+    expect(event.name).toBe('count')
+    expect(event.args.label).toBe('test')
+    expect(event.args['[[Count]]']).toBe(1)
+  }
 
-    t.context.logger.on("count", onResetAltInvoke);
-    t.context.logger.on("countReset", onResetInvoke);
-    t.context.logger.countReset("test");
-    t.context.logger.off("countReset", onResetInvoke);
-    t.context.logger.off("count", onResetAltInvoke);
+  logger.on('count', onPostResetInvoke)
+  logger.count('test')
+  logger.off('count', onPostResetInvoke)
+})
 
-    const onPostResetInvoke = (event: LoggerEvent): void => {
-        t.is(event.name, "count");
-        t.is(event.args.label, "test");
-        t.is(event.args["[[Count]]"], 1);
-    };
+test('Logger#table', () => {
+  expect.assertions(3)
 
-    t.context.logger.on("count", onPostResetInvoke);
-    t.context.logger.count("test");
-    t.context.logger.off("count", onPostResetInvoke);
-});
+  const props = ['hey']
+  const data = { hey: 'hello' }
 
-test("Logger#table", t => {
-    t.plan(3);
+  const onTable = (event: LoggerEvent): void => {
+    expect(event.name).toBe('table')
+    expect(event.args.tabularData).toBe(data)
+    expect(event.args.properties).toBe(props)
+  }
 
-    const props = ["hey"];
-    const data = { hey: "hello" };
+  logger.on('table', onTable)
+  logger.table(data, props)
+  logger.off('table', onTable)
+})
 
-    const onTable = (event: LoggerEvent): void => {
-        t.is(event.name, "table");
-        t.is(event.args.tabularData, data);
-        t.is(event.args.properties, props);
-    };
+test('Logger message', () => {
+  expect.assertions(30) // 6 * 2 + 6 * 3
 
-    t.context.logger.on("table", onTable);
-    t.context.logger.table(data, props);
-    t.context.logger.off("table", onTable);
-});
+  const cache = new Map<keyof Logger, LoggerEventHandler>()
 
-test("Logger message", t => {
-    t.plan(30); // 6 * 2 + 6 * 3
+  const onMessage = (level: keyof Logger): LoggerEventHandler => {
+    let handler = cache.get(level)
+    if (handler) {
+      return handler
+    }
 
-    const cache = new Map<keyof Logger, LoggerEventHandler>();
+    handler = (event: LoggerEvent) => {
+      expect(event.name).toBe('message')
+      expect(event.args.level).toBe(level)
+      expect((event.args['...data'] as unknown[]).join(' ')).toBe(`message at ${level} level`)
+    }
 
-    const onMessage = (level: keyof Logger): LoggerEventHandler => {
-        let handler = cache.get(level);
-        if (handler) {
-            return handler;
-        }
+    cache.set(level, handler)
 
-        handler = (event: LoggerEvent) => {
-            t.is(event.name, "message");
-            t.is(event.args.level, level);
-            t.is((event.args["...data"] as unknown[]).join(" "), `message at ${level} level`);
-        };
+    return handler
+  }
 
-        cache.set(level, handler);
+  const onTrace = (event: LoggerEvent): void => {
+    expect(event.name).toBe('trace')
+    expect((event.args['...data'] as unknown[]).join(' ')).toBe('message at trace level')
+  }
 
-        return handler;
-    };
+  const onDebug = (event: LoggerEvent): void => {
+    expect(event.name).toBe('debug')
+    expect((event.args['...data'] as unknown[]).join(' ')).toBe('message at debug level')
+  }
 
-    const onTrace = (event: LoggerEvent): void => {
-        t.is(event.name, "trace");
-        t.is((event.args["...data"] as unknown[]).join(" "), "message at trace level");
-    };
+  const onInfo = (event: LoggerEvent): void => {
+    expect(event.name).toBe('info')
+    expect((event.args['...data'] as unknown[]).join(' ')).toBe('message at info level')
+  }
 
-    const onDebug = (event: LoggerEvent): void => {
-        t.is(event.name, "debug");
-        t.is((event.args["...data"] as unknown[]).join(" "), "message at debug level");
-    };
+  const onLog = (event: LoggerEvent): void => {
+    expect(event.name).toBe('log')
+    expect((event.args['...data'] as unknown[]).join(' ')).toBe('message at log level')
+  }
 
-    const onInfo = (event: LoggerEvent): void => {
-        t.is(event.name, "info");
-        t.is((event.args["...data"] as unknown[]).join(" "), "message at info level");
-    };
+  const onWarn = (event: LoggerEvent): void => {
+    expect(event.name).toBe('warn')
+    expect((event.args['...data'] as unknown[]).join(' ')).toBe('message at warn level')
+  }
 
-    const onLog = (event: LoggerEvent): void => {
-        t.is(event.name, "log");
-        t.is((event.args["...data"] as unknown[]).join(" "), "message at log level");
-    };
+  const onError = (event: LoggerEvent): void => {
+    expect(event.name).toBe('error')
+    expect((event.args['...data'] as unknown[]).join(' ')).toBe('message at error level')
+  }
 
-    const onWarn = (event: LoggerEvent): void => {
-        t.is(event.name, "warn");
-        t.is((event.args["...data"] as unknown[]).join(" "), "message at warn level");
-    };
+  logger.on('trace', onTrace)
+  logger.on('debug', onDebug)
+  logger.on('info', onInfo)
+  logger.on('log', onLog)
+  logger.on('warn', onWarn)
+  logger.on('error', onError)
 
-    const onError = (event: LoggerEvent): void => {
-        t.is(event.name, "error");
-        t.is((event.args["...data"] as unknown[]).join(" "), "message at error level");
-    };
+  logger.on('message', onMessage('trace'))
+  logger.trace('message at trace level')
+  logger.off('message', onMessage('trace'))
 
-    t.context.logger.on("trace", onTrace);
-    t.context.logger.on("debug", onDebug);
-    t.context.logger.on("info", onInfo);
-    t.context.logger.on("log", onLog);
-    t.context.logger.on("warn", onWarn);
-    t.context.logger.on("error", onError);
+  logger.on('message', onMessage('debug'))
+  logger.debug('message at debug level')
+  logger.off('message', onMessage('debug'))
 
-    t.context.logger.on("message", onMessage("trace"));
-    t.context.logger.trace("message at trace level");
-    t.context.logger.off("message", onMessage("trace"));
+  logger.on('message', onMessage('info'))
+  logger.info('message at info level')
+  logger.off('message', onMessage('info'))
 
-    t.context.logger.on("message", onMessage("debug"));
-    t.context.logger.debug("message at debug level");
-    t.context.logger.off("message", onMessage("debug"));
+  logger.on('message', onMessage('log'))
+  logger.log('message at log level')
+  logger.off('message', onMessage('log'))
 
-    t.context.logger.on("message", onMessage("info"));
-    t.context.logger.info("message at info level");
-    t.context.logger.off("message", onMessage("info"));
+  logger.on('message', onMessage('warn'))
+  logger.warn('message at warn level')
+  logger.off('message', onMessage('warn'))
 
-    t.context.logger.on("message", onMessage("log"));
-    t.context.logger.log("message at log level");
-    t.context.logger.off("message", onMessage("log"));
+  logger.on('message', onMessage('error'))
+  logger.error('message at error level')
+  logger.off('message', onMessage('error'))
 
-    t.context.logger.on("message", onMessage("warn"));
-    t.context.logger.warn("message at warn level");
-    t.context.logger.off("message", onMessage("warn"));
+  logger.off('trace', onTrace)
+  logger.off('debug', onDebug)
+  logger.off('info', onInfo)
+  logger.off('log', onLog)
+  logger.off('warn', onWarn)
+  logger.off('error', onError)
+})
 
-    t.context.logger.on("message", onMessage("error"));
-    t.context.logger.error("message at error level");
-    t.context.logger.off("message", onMessage("error"));
+test('Logger#off(not set)', () => {
+  const onTrace = (): void => { console.trace() }
 
-    t.context.logger.off("trace", onTrace);
-    t.context.logger.off("debug", onDebug);
-    t.context.logger.off("info", onInfo);
-    t.context.logger.off("log", onLog);
-    t.context.logger.off("warn", onWarn);
-    t.context.logger.off("error", onError);
-});
-
-test("Logger#off(not set)", t => {
-    const onTrace = (): void => { console.trace() };
-
-    t.notThrows(() => { t.context.inner.off("trace", onTrace) });
-});
+  expect(() => { inner.off('trace', onTrace) }).not.toThrow()
+})

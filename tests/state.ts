@@ -1,11 +1,10 @@
-import type { TestInterface } from "ava";
-import storeTest from "ava";
-import Vue from "vue";
-import Vuex, { Store } from "vuex";
-import { Module, StoreModule } from "../src";
+import { test, expect } from '@jest/globals'
+import Vue from 'vue'
+import Vuex, { Store } from 'vuex'
+import { Module, StoreModule } from '../src'
 
 class ModuleCommon extends StoreModule {
-    value = 5;
+  value = 5
 }
 
 @Module
@@ -14,41 +13,29 @@ class ClosedStateModule extends ModuleCommon { }
 @Module({ openState: true })
 class OpenStateModule extends ModuleCommon { }
 
-const test = storeTest as TestInterface<{
-    store: Store<unknown>;
-    closed: ClosedStateModule;
-    open: OpenStateModule;
-}>;
+Vue.use(Vuex)
 
-test.before(t => {
-    Vue.use(Vuex);
+const store = new Store({})
+const closed = new ClosedStateModule({ store })
+const open = new OpenStateModule({ store })
 
-    const store = new Store({});
-    const closed = new ClosedStateModule({ store });
-    const open = new OpenStateModule({ store });
+test('Getting property on closed state', () => {
+  expect(closed.value).toBe(5)
+})
 
-    t.context = { store, closed, open };
-});
+test('Setting property on closed state', () => {
+  expect(() => { closed.value = 7 })
+    .toThrow(/^\[decoration-vuex\]: Cannot modify the state outside mutations/u)
 
-test("Getting property on closed state", t => {
-    t.is(t.context.closed.value, 5);
-});
+  expect(closed.value).toBe(5)
+})
 
-test("Setting property on closed state", t => {
-    t.throws(
-        () => { t.context.closed.value = 7 },
-        { instanceOf: TypeError, message: /^\[decoration-vuex\]: Cannot modify the state outside mutations/u },
-    );
+test('Getting property on open state', () => {
+  expect(closed.value).toBe(5)
+})
 
-    t.is(t.context.closed.value, 5);
-});
+test('Setting property on open state', () => {
+  expect(() => { open.value = 7 }).not.toThrow()
 
-test("Getting property on open state", t => {
-    t.is(t.context.closed.value, 5);
-});
-
-test("Setting property on open state", t => {
-    t.notThrows(() => { t.context.open.value = 7 });
-
-    t.is(t.context.open.value, 7);
-});
+  expect(open.value).toBe(7)
+})

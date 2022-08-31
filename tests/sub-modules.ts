@@ -1,132 +1,113 @@
-import type { TestInterface } from "ava";
-import storeTest from "ava";
-import Vue from "vue";
-import Vuex, { Store } from "vuex";
-import type { RegisterOptions, LoggerEvent } from "../src";
-import { Module, Mutation, ObservableLogger, StoreModule, Watch } from "../src";
+import { test, expect } from '@jest/globals'
+import Vue from 'vue'
+import Vuex, { Store } from 'vuex'
+import { Module, Mutation, ObservableLogger, StoreModule, Watch } from '../src'
+import type { RegisterOptions, LoggerEvent } from '../src'
 
-// eslint-disable-next-line @typescript-eslint/explicit-function-return-type -- Return type is cannot declarable.
-function makeContext() {
-    Vue.use(Vuex);
+Vue.use(Vuex)
 
-    const store = new Store({});
+const store = new Store({})
+const logger = new ObservableLogger()
 
-    const logger =  new ObservableLogger();
+@Module
+class SubModule extends StoreModule {
+  main: MainModule
+  value = 5
 
-    @Module
-    class SubModule extends StoreModule {
-        main: MainModule;
-        value = 5;
+  constructor (options: RegisterOptions, main: MainModule) {
+    super(options)
+    this.main = main
+  }
 
-        constructor(options: RegisterOptions, main: MainModule) {
-            super(options);
-            this.main = main;
-        }
+  @Watch('value')
 
-        @Watch("value")
-        // eslint-disable-next-line class-methods-use-this
-        onValueChanged(val: number): void {
-            logger.log(val);
-        }
+  onValueChanged (val: number): void {
+    logger.log(val)
+  }
 
-        @Mutation
-        inc(by: number): void {
-            this.value += by;
-        }
-    }
-
-    @Module({ openState: true })
-    class MainModule extends StoreModule {
-        subModule = new SubModule({ store }, this);
-        value = 6;
-
-        @Watch("value")
-        // eslint-disable-next-line class-methods-use-this
-        onValueChanged(val: number): void {
-            logger.log(val);
-        }
-    }
-
-    return {
-        store,
-        logger,
-        main: new MainModule({ store }),
-    };
+  @Mutation
+  inc (by: number): void {
+    this.value += by
+  }
 }
 
-const test = storeTest as TestInterface<ReturnType<typeof makeContext>>;
+@Module({ openState: true })
+class MainModule extends StoreModule {
+  subModule = new SubModule({ store }, this)
+  value = 6
 
-test.before(t => {
-    t.context = makeContext();
-});
+  @Watch('value')
 
-test("submodule descriptor", t => {
-    const descriptor = Object.getOwnPropertyDescriptor(t.context.main, "subModule");
-    const subModule = t.context.main.subModule;
+  onValueChanged (val: number): void {
+    logger.log(val)
+  }
+}
 
-    t.truthy(descriptor);
-    if (descriptor) {
-        t.false(descriptor.configurable);
-        t.false(descriptor.enumerable);
-        t.false(descriptor.writable);
-        t.is(descriptor.value, subModule);
-    }
+const main = new MainModule({ store })
 
-    t.throws(() => {
-        // @ts-expect-error Trying to reassign this to test immutability
-        t.context.main.subModule = 5;
-    }, {
-        instanceOf: TypeError,
-        message:    "[decoration-vuex]: Sub-module reference subModule is immutable",
-    });
+test('submodule descriptor', () => {
+  const descriptor = Object.getOwnPropertyDescriptor(main, 'subModule')
+  const subModule = main.subModule
 
-    t.is(t.context.main.subModule, subModule);
+  expect(descriptor).toBeTruthy()
+  if (descriptor) {
+    expect(descriptor.configurable).toBe(false)
+    expect(descriptor.enumerable).toBe(false)
+    expect(descriptor.writable).toBe(false)
+    expect(descriptor.value).toBe(subModule)
+  }
 
-    t.plan(7);
-});
+  expect(() => {
+    // @ts-expect-error Trying to reassign this to test immutability
+    main.subModule = 5
+  }).toThrowError({
+    instanceOf: TypeError,
+    message: '[decoration-vuex]: Sub-module reference subModule is immutable'
+  })
 
-test("main descriptor, cyclic references", t => {
-    const descriptor = Object.getOwnPropertyDescriptor(t.context.main.subModule, "main");
-    const main = t.context.main.subModule.main;
+  expect(main.subModule).toBe(subModule)
 
-    t.truthy(descriptor);
-    if (descriptor) {
-        t.false(descriptor.configurable);
-        t.false(descriptor.enumerable);
-        t.false(descriptor.writable);
-        t.is(descriptor.value, main);
-    }
+  expect.assertions(7)
+})
 
-    t.throws(() => {
-        // @ts-expect-error Trying to reassign this to test immutability
-        t.context.main.subModule.main = 5;
-    }, {
-        instanceOf: TypeError,
-        message:    "[decoration-vuex]: Sub-module reference main is immutable",
-    });
+test('main descriptor, cyclic references', () => {
+  const descriptor = Object.getOwnPropertyDescriptor(main.subModule, 'main')
+  const innerMain = main.subModule.main
 
-    t.is(t.context.main.subModule.main, main);
+  expect(descriptor).toBeTruthy()
+  if (descriptor) {
+    expect(descriptor.configurable).toBe(false)
+    expect(descriptor.enumerable).toBe(false)
+    expect(descriptor.writable).toBe(false)
+    expect(descriptor.value).toBe(innerMain)
+  }
 
-    t.plan(7);
-});
+  expect(() => {
+    // @ts-expect-error Trying to reassign this to test immutability
+    innerMain.subModule.main = 5
+  }).toThrow('[decoration-vuex]: Sub-module reference main is immutable')
 
-test("read heir state", t => new Promise(resolve => {
-    t.is(t.context.main.value, 6);
-    t.is(t.context.main.subModule.value, 5);
-    t.is(t.context.main.subModule.main.value, 6);
+  expect(innerMain.subModule.main).toBe(innerMain)
 
+  expect.assertions(7)
+})
 
-    const onLog = (log: LoggerEvent): void => {
-        t.is(log.name, "log");
-        t.deepEqual(log.args["...data"], [7]);
-        t.context.logger.off("log", onLog);
+test('read heir state', () => new Promise<void>(resolve => {
+  expect(main.value).toBe(6)
+  expect(main.subModule.value).toBe(5)
+  expect(main.subModule.main.value).toBe(6)
 
-        resolve();
-    };
+  const onLog = (log: LoggerEvent): void => {
+    expect(log.name).toBe('log')
+    expect(log.args['...data']).toEqual([7])
+    logger.off('log', onLog)
 
-    t.context.logger.on("log", onLog);
+    resolve()
+  }
 
-    t.context.main.subModule.inc(2);
+  logger.on('log', onLog)
 
-    t.is(t.context.main.subModule.value, 7);
-}));
+  main.subModule.inc(2)
+
+  expect(main.subModule.value).toBe(7)
+}))

@@ -2,6 +2,8 @@
 
 Create type-safe class-based Vuex modules in TypeScript
 
+[![License: MIT](https://img.shields.io/github/license/6XGate/decoration-vuex)](https://opensource.org/licenses/MIT)
+[![JavaScript Style Guide](https://img.shields.io/badge/code_style-standard-brightgreen.svg)](https://standardjs.com)
 ![Lint test](https://github.com/6XGate/decoration-vuex/workflows/Lint%20test/badge.svg?branch=develop)
 ![Test coverage](https://github.com/6XGate/decoration-vuex/workflows/Test%20coverage/badge.svg?branch=develop)
 ![Build test](https://github.com/6XGate/decoration-vuex/workflows/Build%20test/badge.svg?branch=develop)
@@ -691,11 +693,10 @@ the listed features.
 - Inspired by [Vuex Class Modules](https://github.com/championswimmer/vuex-module-decorators).
 - Uses the following development tools:
     - The [TypeScript](https://www.typescriptlang.org/) language
-    - [NYC](https://istanbul.js.org/) code coverage framework
-    - [Ava](https://github.com/avajs/ava) testing framework
+    - [Jest](https://jestjs.io/) code coverage and testing framework
     - [ESLint](https://eslint.org/) pluggable linter
     - [Husky](https://typicode.github.io/husky/#/) for easy Git hooks.
-    - [Rollup.js](https://rollupjs.org/) package bundler, wrapped by [Rolete](https://github.com/6XGate/rolete).
+    - [WebPack](https://webpack.js.org/) package bundler.
 
 ## Roadmap
 
