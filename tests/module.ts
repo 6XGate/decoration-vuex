@@ -1,9 +1,8 @@
-import storeTest from 'ava'
+import { test, expect } from '@jest/globals'
 import Vue from 'vue'
 import Vuex, { Store } from 'vuex'
 import { getModuleName, Module, StoreModule } from '../src'
 import type { RegisterOptions } from '../src'
-import type { TestInterface } from 'ava'
 
 @Module
 class TestModule extends StoreModule {
@@ -16,27 +15,18 @@ class TestModule extends StoreModule {
   }
 }
 
-const test = storeTest as TestInterface<{
-  store: Store<{ [key: string]: TestModule }>;
-  module: TestModule;
-}>
+Vue.use(Vuex)
 
-test.before(t => {
-  Vue.use(Vuex)
+const store = new Store<{ [key: string]: TestModule }>({})
+const module = new TestModule({ store }, 5)
 
-  const store = new Store<{ [key: string]: TestModule }>({})
-  const module = new TestModule({ store }, 5)
-
-  t.context = { store, module }
+test('create', () => {
+  const name = getModuleName(module)
+  expect(store.state[name]).toBeInstanceOf(TestModule)
+  expect(getModuleName(store.state[name] as TestModule)).toMatch(/TestModule#\d+/u)
+  expect(getModuleName(module)).toMatch(/TestModule#\d+/u)
 })
 
-test('create', t => {
-  const name = getModuleName(t.context.module)
-  t.true(t.context.store.state[name] instanceof TestModule, 'TestModule is not a TestModule')
-  t.regex(getModuleName(t.context.store.state[name] as TestModule), /TestModule#\d+/u)
-  t.regex(getModuleName(t.context.module), /TestModule#\d+/u)
-})
-
-test('state', t => {
-  t.is(t.context.module.value, 5)
+test('state', () => {
+  expect(module.value).toBe(5)
 })

@@ -1,4 +1,4 @@
-import storeTest from 'ava'
+import test from 'ava'
 import Vue from 'vue'
 import Vuex, { Store } from 'vuex'
 import { getModuleName, Module, StoreModule } from '../src'
@@ -9,10 +9,10 @@ class RenamedModule extends StoreModule {
   value = 5
 }
 
-const test = storeTest as TestInterface<{
-  store: Store<{ myModule: RenamedModule }>;
-  module: RenamedModule;
-}>
+// const test = storeTest as TestInterface<{
+//   store: Store<{ myModule: RenamedModule }>;
+//   module: RenamedModule;
+// }>
 
 test.before(t => {
   Vue.use(Vuex)

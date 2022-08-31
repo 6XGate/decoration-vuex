@@ -12,7 +12,7 @@
     "dev": "npm run build:development",
     "prod": "npm run build:production",
     "coverage": "echo 'nyc ava'",
-    "test": "echo 'ava'",
+    "test": "jest",
     "postinstall": "husky install",
     "prepublishOnly": "pinst --disable && npm run prod",
     "postpublish": "pinst --enable",
@@ -53,6 +53,7 @@
   },
   "devDependencies": {
     "@babel/core": "^7.18.13",
+    "@babel/plugin-proposal-decorators": "^7.18.10",
     "@babel/preset-env": "^7.18.10",
     "@babel/preset-typescript": "^7.18.6",
     "@istanbuljs/nyc-config-typescript": "^1.0.2",
@@ -85,7 +86,6 @@
     "webpack-cli": "^4.10.0",
     "webpack-node-externals": "^3.0.0",
     "webpack-notifier": "^1.15.0",
-    "webpackbar": "^5.0.2",
-    "zod": "^3.18.0"
+    "webpackbar": "^5.0.2"
   }
 }

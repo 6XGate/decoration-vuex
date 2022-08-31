@@ -1,8 +1,7 @@
-import storeTest from 'ava'
+import { test, expect } from '@jest/globals'
 import Vue from 'vue'
 import Vuex, { Store } from 'vuex'
 import { Mutation, Action, Module, StoreModule } from '../src'
-import type { TestInterface } from 'ava'
 
 @Module
 class GetterModule extends StoreModule {
@@ -37,48 +36,35 @@ class GetterModule extends StoreModule {
   }
 }
 
-const test = storeTest as TestInterface<{
-  store: Store<unknown>;
-  module: GetterModule;
-}>
+Vue.use(Vuex)
 
-test.before(t => {
-  Vue.use(Vuex)
+const store = new Store({})
+const module = new GetterModule({ store })
 
-  const store = new Store({})
-  const module = new GetterModule({ store })
-
-  t.context = { store, module }
+test('Getting basic value', () => {
+  expect(module.x).toBe(5)
 })
 
-test('Getting basic value', t => {
-  t.is(t.context.module.x, 5)
+test('Getting computed value', () => {
+  expect(module.sqr).toBe(25)
 })
 
-test('Getting computed value', t => {
-  t.is(t.context.module.sqr, 25)
+test('Getter calling getter', () => {
+  expect(module.goodUsingGetter).toBe(5)
 })
 
-test('Getter calling getter', t => {
-  t.is(t.context.module.goodUsingGetter, 5)
+test('Getter calling mutation', () => {
+  const value = module.value
+  expect(() => { console.log(module.badUsingMutation) })
+    .toThrow(/^\[decoration-vuex\]: Calling mutation/u)
+
+  expect(module.value).toBe(value)
 })
 
-test('Getter calling mutation', t => {
-  const value = t.context.module.value
-  t.throws(
-    () => { console.log(t.context.module.badUsingMutation) },
-    { instanceOf: Error, message: /^\[decoration-vuex\]: Calling mutation/u }
-  )
+test('Getter calling action', () => {
+  const value = module.value
+  expect(() => { console.log(module.badUsingAction) })
+    .toThrow(/^\[decoration-vuex\]: Calling action/u)
 
-  t.is(t.context.module.value, value)
-})
-
-test('Getter calling action', t => {
-  const value = t.context.module.value
-  t.throws(
-    () => { console.log(t.context.module.badUsingAction) },
-    { instanceOf: Error, message: /^\[decoration-vuex\]: Calling action/u }
-  )
-
-  t.is(t.context.module.value, value)
+  expect(module.value).toBe(value)
 })

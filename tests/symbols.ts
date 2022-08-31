@@ -1,4 +1,4 @@
-import storeTest from 'ava'
+import test from 'ava'
 import Vue from 'vue'
 import Vuex, { Store } from 'vuex'
 import { Module, StoreModule } from '../src'
@@ -11,10 +11,10 @@ class SymbolModule extends StoreModule {
   [kValue] = 5
 }
 
-const test = storeTest as TestInterface<{
-  store: Store<unknown>;
-  module: SymbolModule;
-}>
+// const test = storeTest as TestInterface<{
+//   store: Store<unknown>;
+//   module: SymbolModule;
+// }>
 
 test.before(t => {
   Vue.use(Vuex)

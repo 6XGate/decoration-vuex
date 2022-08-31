@@ -1,4 +1,4 @@
-import storeTest from 'ava'
+import test from 'ava'
 import Vue from 'vue'
 import Vuex, { Store } from 'vuex'
 import { Module, StoreModule } from '../src'
@@ -14,11 +14,11 @@ class ClosedStateModule extends ModuleCommon { }
 @Module({ openState: true })
 class OpenStateModule extends ModuleCommon { }
 
-const test = storeTest as TestInterface<{
-  store: Store<unknown>;
-  closed: ClosedStateModule;
-  open: OpenStateModule;
-}>
+// const test = storeTest as TestInterface<{
+//   store: Store<unknown>;
+//   closed: ClosedStateModule;
+//   open: OpenStateModule;
+// }>
 
 test.before(t => {
   Vue.use(Vuex)

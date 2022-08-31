@@ -1,8 +1,7 @@
-import storeTest from 'ava'
+import { test, expect } from '@jest/globals'
 import Vue from 'vue'
 import Vuex, { Store } from 'vuex'
 import { Getter, Mutation, Action, Module, StoreModule } from '../src'
-import type { TestInterface } from 'ava'
 
 class BaseActionModule extends StoreModule {
   value = 5
@@ -67,65 +66,52 @@ class ClosedStateActionModule extends BaseActionModule { }
 @Module({ openState: true })
 class OpenStateActionModule extends BaseActionModule { }
 
-const test = storeTest as TestInterface<{
-  store: Store<unknown>;
-  closed: ClosedStateActionModule;
-  open: OpenStateActionModule;
-}>
+Vue.use(Vuex)
 
-test.before(t => {
-  Vue.use(Vuex)
+const store = new Store({})
+const closed = new ClosedStateActionModule({ store })
+const open = new OpenStateActionModule({ store })
 
-  const store = new Store({})
-  const closed = new ClosedStateActionModule({ store })
-  const open = new OpenStateActionModule({ store })
-
-  t.context = { store, open, closed }
+test('Getting value', async () => {
+  await expect(closed.tryGetValue()).resolves.toBe(closed.value)
+  expect(closed.value).toBe(5)
 })
 
-test.serial('Getting value', async t => {
-  await t.notThrowsAsync(() => t.context.closed.tryGetValue())
-  t.is(t.context.closed.value, await t.context.closed.tryGetValue())
-  t.is(t.context.closed.value, 5)
+test('Setting value in closed state', async () => {
+  await expect(closed.trySetValue(6)).rejects
+    .toThrow(/^\[decoration-vuex\]: Cannot modify the state outside mutations/u)
+
+  await expect(closed.tryGetValue()).resolves.toBe(closed.value)
+  expect(closed.value).toBe(5)
 })
 
-test.serial('Setting value in closed state', async t => {
-  await t.throwsAsync(
-    () => t.context.closed.trySetValue(6),
-    { instanceOf: TypeError, message: /^\[decoration-vuex\]: Cannot modify the state outside mutations/u }
-  )
-
-  t.is(t.context.closed.value, await t.context.closed.tryGetValue())
-  t.is(t.context.closed.value, 5)
+test('Setting value in open state', async () => {
+  await expect(open.trySetValue(7)).resolves.toBeUndefined()
+  await expect(open.tryGetValue()).resolves.toBe(open.value)
+  expect(open.value).toBe(7)
 })
 
-test.serial('Setting value in open state', async t => {
-  await t.notThrowsAsync(() => t.context.open.trySetValue(7))
-  t.is(t.context.open.value, await t.context.open.tryGetValue())
-  t.is(t.context.open.value, 7)
+test('Getting value by getter', async () => {
+  const expected = await closed.tryGetValue()
+  await expect(closed.tryGetX()).resolves.toBe(expected)
 })
 
-test.serial('Getting value by getter', async t => {
-  await t.notThrowsAsync(() => t.context.closed.tryGetX())
-  t.is(await t.context.closed.tryGetValue(), await t.context.closed.tryGetX())
+test('Setting value in action by setter', async () => {
+  await expect(closed.trySetX(9)).resolves.toBeUndefined()
+  await expect(closed.tryGetX()).resolves.toBe(9)
 })
 
-test.serial('Setting value by setter', async t => {
-  await t.notThrowsAsync(() => t.context.closed.trySetX(9))
-  t.is(await t.context.closed.tryGetX(), 9)
+test('Getting value by accessor', async () => {
+  const expected = await closed.tryAccessX()
+  await expect(closed.tryGetValue()).resolves.toBe(expected)
 })
 
-test.serial('Getting value by accessor', async t => {
-  await t.notThrowsAsync(() => t.context.closed.tryAccessX())
-  t.is(await t.context.closed.tryGetValue(), await t.context.closed.tryAccessX())
+test('Setting value in action by mutation', async () => {
+  await expect(closed.tryMutateX(11)).resolves.toBeUndefined()
+  await expect(closed.tryGetX()).resolves.toBe(11)
 })
 
-test.serial('Setting value by mutation', async t => {
-  await t.notThrowsAsync(() => t.context.closed.tryMutateX(11))
-  t.is(await t.context.closed.tryGetX(), 11)
-})
-
-test.serial('Setting value with inputs', async t => {
-  await t.notThrowsAsync(() => t.context.closed.tryMultiplyToX(11, 12))
-  t.is(await t.context.closed.tryGetX(), 11 * 12)
+test('Setting value in action with inputs', async () => {
+  await expect(closed.tryMultiplyToX(11, 12)).resolves.toBeUndefined()
+  await expect(closed.tryGetX()).resolves.toBe(11 * 12)
 })

@@ -1,4 +1,4 @@
-import storeTest from 'ava'
+import test from 'ava'
 import Vue from 'vue'
 import Vuex, { Store } from 'vuex'
 import { getLogger, Module, Mutation, ObservableLogger, setLogger, StoreModule, Watch } from '../src'
@@ -43,11 +43,11 @@ class WatchingModule extends StoreModule {
   }
 }
 
-const test = storeTest as TestInterface<{
-  store: Store<unknown>;
-  module: WatchingModule;
-  logger: ObservableLogger;
-}>
+// const test = storeTest as TestInterface<{
+//   store: Store<unknown>;
+//   module: WatchingModule;
+//   logger: ObservableLogger;
+// }>
 
 test.before(t => {
   Vue.use(Vuex)

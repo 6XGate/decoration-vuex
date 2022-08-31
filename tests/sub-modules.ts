@@ -1,4 +1,4 @@
-import storeTest from 'ava'
+import test from 'ava'
 import Vue from 'vue'
 import Vuex, { Store } from 'vuex'
 import { Module, Mutation, ObservableLogger, StoreModule, Watch } from '../src'
@@ -53,7 +53,7 @@ function makeContext () {
   }
 }
 
-const test = storeTest as TestInterface<ReturnType<typeof makeContext>>
+// const test = storeTest as TestInterface<ReturnType<typeof makeContext>>
 
 test.before(t => {
   t.context = makeContext()

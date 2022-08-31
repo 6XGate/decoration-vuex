@@ -1,12 +1,12 @@
-import loggerTest from 'ava'
+import test from 'ava'
 import { ObservableLogger } from '../src'
 import type { Logger, LoggerEvent, LoggerEventHandler } from '../src'
 import type { TestInterface } from 'ava'
 
-const test = loggerTest as TestInterface<{
-  logger: ObservableLogger;
-  inner: ObservableLogger;
-}>
+// const test = loggerTest as TestInterface<{
+//   logger: ObservableLogger;
+//   inner: ObservableLogger;
+// }>
 
 test.before(t => {
   const inner = new ObservableLogger()

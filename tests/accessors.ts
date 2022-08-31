@@ -1,10 +1,8 @@
-import storeTest from 'ava'
+import { test, expect } from '@jest/globals'
 import Vue from 'vue'
 import Vuex, { Store } from 'vuex'
 import { Getter, Mutation, Action, Module, StoreModule } from '../src'
-import type { TestInterface } from 'ava'
-
-const ignore = (..._ignore: unknown[]): void => undefined
+import { ignore } from './utils/utils'
 
 @Module
 class AccessorModule extends StoreModule {
@@ -63,58 +61,43 @@ class AccessorModule extends StoreModule {
   }
 }
 
-const test = storeTest as TestInterface<{
-  store: Store<unknown>;
-  module: AccessorModule;
-}>
+Vue.use(Vuex)
 
-test.before(t => {
-  Vue.use(Vuex)
+const store = new Store({})
+const module = new AccessorModule({ store })
 
-  const store = new Store({})
-  const module = new AccessorModule({ store })
-
-  t.context = { store, module }
+test('Getting by accessor', () => {
+  expect(module.getX()).toBe(5)
 })
 
-test('Getting by accessor', t => {
-  t.is(t.context.module.getX(), 5)
+test('Getting computed value', () => {
+  expect(module.getPow(3)).toBe(125)
 })
 
-test('Getting computed value', t => {
-  t.is(t.context.module.getPow(3), 125)
+test('Accessor with many inputs', () => {
+  expect(module.getMany(1, 2)).toStrictEqual([1, 2, 5])
 })
 
-test('Accessor with many inputs', t => {
-  t.deepEqual(t.context.module.getMany(1, 2), [1, 2, 5])
+test('Accessor calling setter', () => {
+  const value = module.value
+  expect(() => { ignore(module.failSetter()) })
+    .toThrow(/^\[decoration-vuex\]: Calling setter for/u)
+
+  expect(module.value).toBe(value)
 })
 
-test('Accessor calling setter', t => {
-  const value = t.context.module.value
-  t.throws(
-    () => { ignore(t.context.module.failSetter()) },
-    { instanceOf: Error, message: /^\[decoration-vuex\]: Calling setter for/u }
-  )
+test('Accessor calling mutation', () => {
+  const value = module.value
+  expect(() => { ignore(module.failMutations()) })
+    .toThrow(/^\[decoration-vuex\]: Calling mutation/u)
 
-  t.is(t.context.module.value, value)
+  expect(module.value).toBe(value)
 })
 
-test('Accessor calling mutation', t => {
-  const value = t.context.module.value
-  t.throws(
-    () => { ignore(t.context.module.failMutations()) },
-    { instanceOf: Error, message: /^\[decoration-vuex\]: Calling mutation/u }
-  )
+test('Accessor calling action', () => {
+  const value = module.value
+  expect(() => { ignore(module.failAction()) })
+    .toThrow(/^\[decoration-vuex\]: Calling action/u)
 
-  t.is(t.context.module.value, value)
-})
-
-test('Accessor calling action', t => {
-  const value = t.context.module.value
-  t.throws(
-    () => { ignore(t.context.module.failAction()) },
-    { instanceOf: Error, message: /^\[decoration-vuex\]: Calling action/u }
-  )
-
-  t.is(t.context.module.value, value)
+  expect(module.value).toBe(value)
 })
