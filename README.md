@@ -9,6 +9,8 @@
 
 # Decoration for Vuex
 
+## __Decoration for Vuex__ is being deprecated in favor of composable stores using [🍍Pinia](https://pinia.vuejs.org/)  ##
+
 Create type-safe class-based Vuex modules in TypeScript
 
 ## License
